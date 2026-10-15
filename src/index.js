@@ -180,7 +180,7 @@ async function serveReview(c) {
     renderReviewPage({
       settings,
       branch,
-      redirectUrl: platform?.review_url || "",
+      redirectUrl: platform?.review_url || FALLBACK_REVIEW_URL,
     }),
   );
 }
@@ -203,7 +203,7 @@ app.post("/review/rate", async (c) => {
 
   if (rating >= 4) {
     const platform = await getPrimaryPlatform(c.env.DB);
-    const url = platform?.review_url ? redirectTo(platform.review_url) : null;
+    const url = redirectTo(platform?.review_url || FALLBACK_REVIEW_URL);
     if (!url) return html(c, renderNoPlatformPage(settings));
     await logEvent(c.env.DB, {
       type: "review_redirect",
@@ -267,7 +267,7 @@ app.post("/review/feedback", async (c) => {
   const ipKey = await hashedIp(c);
   const limit = await rateLimit(c.env.DB, `fb:${ipKey}`, 5, 3600);
   if (!limit.ok) {
-    return fail("تعداد درخواست‌ها بیش از حد مجاز است. کمی بعد دوباره تلاش کنید.", 429);
+    return fail("تعداد درخواست‌ها بیش از حد است. کمی بعد دوباره تلاش کنید.", 429);
   }
 
   await insertFeedback(c.env.DB, { rating, comment, name, phone: "", branch });
@@ -579,16 +579,16 @@ app.get("/admin/feedback", async (c) => {
 
 app.notFound(async (c) => {
   const body = `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>صفحه پیدا نشد</title>
-<style>body{font-family:Tahoma,sans-serif;background:#F3EEE4;color:#1C1915;display:grid;place-items:center;min-height:100dvh;margin:0}a{color:#1A5F52}</style>
-</head><body><main><h1>صفحه پیدا نشد</h1><p><a href="/review">بازگشت</a></p></main></body></html>`;
+<style>@font-face{font-family:Vazirmatn;src:url("/fonts/Vazirmatn-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}body{font-family:Vazirmatn,Tahoma,sans-serif;background:#F3EEE4;color:#1C1915;display:grid;place-items:center;min-height:100dvh;margin:0;text-align:center;line-height:1.8}a{color:#1A5F52}</style>
+</head><body><main><h1>این صفحه پیدا نشد.</h1><p><a href="/review">بازگشت به ثبت نظر</a></p></main></body></html>`;
   return c.html(body, 404);
 });
 
 app.onError((err, c) => {
   console.error(err);
   const body = `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>خطا</title>
-<style>body{font-family:Tahoma,sans-serif;background:#F3EEE4;color:#1C1915;display:grid;place-items:center;min-height:100dvh;margin:0}</style>
-</head><body><main><h1>خطایی رخ داد</h1><p>لطفاً کمی بعد دوباره تلاش کنید.</p></main></body></html>`;
+<style>@font-face{font-family:Vazirmatn;src:url("/fonts/Vazirmatn-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}body{font-family:Vazirmatn,Tahoma,sans-serif;background:#F3EEE4;color:#1C1915;display:grid;place-items:center;min-height:100dvh;margin:0;text-align:center;line-height:1.8}</style>
+</head><body><main><h1>مشکلی پیش آمد.</h1><p>کمی بعد دوباره تلاش کنید.</p></main></body></html>`;
   return c.html(body, 500);
 });
 

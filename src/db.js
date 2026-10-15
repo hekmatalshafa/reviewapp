@@ -4,7 +4,7 @@ import { SCHEMA_SQL } from "./schema.js";
 let schemaReady = false;
 
 export async function ensureSchema(db) {
-  if (schemaReady) return;
+  if (schemaReady || !db) return;
   try {
     const row = await db
       .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'settings'")
@@ -16,14 +16,23 @@ export async function ensureSchema(db) {
   } catch {
     /* create below */
   }
-  if (typeof db.exec === "function") {
-    await db.exec(SCHEMA_SQL);
+  const statements = SCHEMA_SQL.split(";")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  for (const sql of statements) {
+    try {
+      if (typeof db.exec === "function") await db.exec(sql);
+      else await db.prepare(sql).run();
+    } catch (err) {
+      console.error("schema statement failed", sql.slice(0, 60), err);
+    }
   }
   schemaReady = true;
 }
 
 export async function getSettings(db) {
   const settings = { ...DEFAULT_SETTINGS };
+  if (!db?.prepare) return settings;
   try {
     const { results } = await db.prepare("SELECT key, value FROM settings").all();
     for (const row of results || []) {
@@ -32,6 +41,7 @@ export async function getSettings(db) {
   } catch {
     /* unmigrated */
   }
+  if (!settings.business_logo) settings.business_logo = DEFAULT_SETTINGS.business_logo;
   settings.primary_color = sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color);
   settings.secondary_color = sanitizeColor(
     settings.secondary_color,
@@ -50,12 +60,17 @@ export async function setSetting(db, key, value) {
 }
 
 export async function listPlatforms(db) {
+  if (!db?.prepare) return [];
+  try {
   const { results } = await db
     .prepare(
       "SELECT id, name, review_url, deep_link, web_fallback, icon, enabled, is_primary, sort_order, created_at, updated_at FROM platforms ORDER BY is_primary DESC, sort_order ASC, created_at ASC",
     )
     .all();
   return results || [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getPlatform(db, id) {
@@ -68,17 +83,22 @@ export async function getPlatform(db, id) {
 }
 
 export async function getPrimaryPlatform(db) {
+  if (!db?.prepare) return null;
+  try {
   const primary = await db
     .prepare(
       "SELECT id, name, review_url, deep_link, web_fallback, icon, enabled, is_primary FROM platforms WHERE is_primary = 1 AND enabled = 1 LIMIT 1",
     )
     .first();
   if (primary) return primary;
-  return db
+  return await db
     .prepare(
       "SELECT id, name, review_url, deep_link, web_fallback, icon, enabled, is_primary FROM platforms WHERE enabled = 1 ORDER BY sort_order ASC, created_at ASC LIMIT 1",
     )
     .first();
+  } catch {
+    return null;
+  }
 }
 
 export async function savePlatform(db, platform) {
@@ -162,12 +182,17 @@ export async function setPlatformEnabled(db, id, enabled) {
 }
 
 export async function logEvent(db, { type, rating = null, branch = null, platform_id = null }) {
-  await db
-    .prepare(
-      "INSERT INTO events (type, rating, branch, platform_id) VALUES (?, ?, ?, ?)",
-    )
-    .bind(type, rating, branch || null, platform_id || null)
-    .run();
+  if (!db?.prepare) return;
+  try {
+    await db
+      .prepare(
+        "INSERT INTO events (type, rating, branch, platform_id) VALUES (?, ?, ?, ?)",
+      )
+      .bind(type, rating, branch || null, platform_id || null)
+      .run();
+  } catch {
+    /* never block the customer */
+  }
 }
 
 export async function insertFeedback(db, { rating, comment, name, phone, branch }) {
@@ -180,13 +205,18 @@ export async function insertFeedback(db, { rating, comment, name, phone, branch 
 }
 
 export async function listFeedback(db, limit = 100) {
-  const { results } = await db
-    .prepare(
-      "SELECT id, rating, comment, name, phone, branch, created_at FROM feedback ORDER BY created_at DESC LIMIT ?",
-    )
-    .bind(limit)
-    .all();
-  return results || [];
+  if (!db?.prepare) return [];
+  try {
+    const { results } = await db
+      .prepare(
+        "SELECT id, rating, comment, name, phone, branch, created_at FROM feedback ORDER BY created_at DESC LIMIT ?",
+      )
+      .bind(limit)
+      .all();
+    return results || [];
+  } catch {
+    return [];
+  }
 }
 
 export async function getDashboardStats(db) {
@@ -202,6 +232,8 @@ export async function getDashboardStats(db) {
     feedback: 0,
   };
 
+  if (!db?.prepare) return empty;
+  try {
   const totals = await db
     .prepare(
       `SELECT
@@ -235,9 +267,14 @@ export async function getDashboardStats(db) {
   }
 
   return stats;
+  } catch {
+    return empty;
+  }
 }
 
 export async function rateLimit(db, key, limit, windowSec) {
+  if (!db?.prepare) return { ok: true };
+  try {
   const now = Math.floor(Date.now() / 1000);
   const row = await db
     .prepare("SELECT count, reset_at FROM rate_limits WHERE id = ?")
@@ -259,4 +296,7 @@ export async function rateLimit(db, key, limit, windowSec) {
     .bind(key)
     .run();
   return { ok: true };
+  } catch {
+    return { ok: true };
+  }
 }
