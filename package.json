@@ -1,0 +1,23 @@
+{
+  "name": "reviewapp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Persian RTL mobile-first customer review funnel",
+  "scripts": {
+    "dev": "node --experimental-sqlite src/server.js",
+    "start": "node --experimental-sqlite src/server.js",
+    "deploy": "node scripts/deploy.mjs",
+    "cf-deploy": "wrangler deploy --autoconfig=false",
+    "cf:dev": "wrangler d1 migrations apply reviewapp --local && wrangler dev --ip 0.0.0.0 --port 8787",
+    "db:migrate": "wrangler d1 migrations apply reviewapp --remote",
+    "db:migrate:local": "wrangler d1 migrations apply reviewapp --local"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.6",
+    "hono": "^4.7.12"
+  },
+  "devDependencies": {
+    "wrangler": "^4.24.3"
+  }
+}
