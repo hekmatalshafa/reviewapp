@@ -14,6 +14,25 @@ const STAR_LABELS = [
   "امتیاز ۵ از ۵، عالی",
 ];
 
+const COPY = {
+  ask: "از خدمات ما راضی بودید؟",
+  hint: "",
+  lowTitle: "متأسفیم که رضایت نداشتید.",
+  lowBody: "لطفاً دلیل را بنویسید تا بررسی کنیم.",
+  comment: "توضیحات",
+  commentPh: "دلیل نارضایتی را بنویسید",
+  name: "نام",
+  nameOpt: "اختیاری",
+  namePh: "نام شما",
+  send: "ثبت",
+  sending: "در حال ارسال…",
+  thanksTitle: "نظر شما ثبت شد.",
+  thanksBody: "سپاسگزاریم.",
+  noPlatformTitle: "در حال حاضر امکان ثبت نظر فراهم نیست.",
+  noPlatformBody: "لطفاً کمی بعد دوباره تلاش کنید.",
+  title: "ثبت نظر",
+};
+
 function hexToRgba(hex, alpha) {
   const n = parseInt(String(hex).slice(1), 16);
   if (Number.isNaN(n)) return `rgba(26,95,82,${alpha})`;
@@ -59,12 +78,12 @@ main{
   align-items:center;
   text-align:center;
 }
-.brand{display:flex;flex-direction:column;align-items:center;margin-bottom:28px}
+.brand{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
 .brand img{
-  max-height:72px;
-  max-width:min(220px,70vw);
+  max-height:64px;
+  max-width:min(200px,60vw);
   object-fit:contain;
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 .brand .name{
   font-size:0.95rem;
@@ -73,10 +92,10 @@ main{
   line-height:1.7;
 }
 h1{
-  font-size:1.45rem;
+  font-size:1.38rem;
   font-weight:700;
-  line-height:1.75;
-  margin-bottom:28px;
+  line-height:1.85;
+  margin-bottom:22px;
 }
 .stars{
   display:flex;
@@ -226,11 +245,12 @@ input:focus-visible,textarea:focus-visible{
 }
 
 function brandBlock(settings) {
-  const logo = safeImageSrc(settings.business_logo);
+  const raw = settings.business_logo || "";
+  const logo = raw && raw !== "/logo.png" ? safeImageSrc(raw) : "";
   const name = (settings.business_name || "").trim();
   if (!logo && !name) return "";
   return `<div class="brand">
-    ${logo ? `<img src="${escapeHtml(logo)}" alt="${escapeHtml(name || "لوگو")}" width="180" height="72">` : ""}
+    ${logo ? `<img src="${escapeHtml(logo)}" alt="${escapeHtml(name || "لوگو")}" width="180" height="64">` : ""}
     ${name ? `<div class="name">${escapeHtml(name)}</div>` : ""}
   </div>`;
 }
@@ -338,7 +358,7 @@ const REVIEW_SCRIPT = `
       if(!window.fetch)return;
       e.preventDefault();
       var btn=fbForm.querySelector("[type=submit]");
-      if(btn){btn.disabled=true;btn.textContent="در حال ارسال…";}
+            if(btn){btn.disabled=true;btn.textContent=${JSON.stringify("در حال ارسال…")};}
       fetch("/review/feedback",{
         method:"POST",
         body:new FormData(fbForm),
@@ -356,7 +376,7 @@ const REVIEW_SCRIPT = `
           throw new Error(res.err||"fail");
         }
       }).catch(function(){
-        if(btn){btn.disabled=false;btn.textContent="ارسال بازخورد";}
+        if(btn){btn.disabled=false;btn.textContent=${JSON.stringify("ثبت")};}
         fbForm.submit();
       });
     });
@@ -368,24 +388,24 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
   const primary = sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color);
   const secondary = sanitizeColor(settings.secondary_color, DEFAULT_SETTINGS.secondary_color);
   const title = settings.business_name
-    ? `نظر شما | ${settings.business_name}`
-    : "تجربه‌تان چطور بود؟";
+    ? `${COPY.title} | ${settings.business_name}`
+    : COPY.title;
 
   const body = `
 <main>
   ${brandBlock(settings)}
-  <h1 id="ask">تجربه‌تان چطور بود؟</h1>
+  <h1 id="ask">${COPY.ask}</h1>
   <form id="rating-form" class="stars" method="post" action="/review/rate" dir="ltr" role="radiogroup" aria-labelledby="ask" data-redirect="${escapeHtml(redirectUrl || "")}" data-branch="${escapeHtml(branch || "")}">
     <input type="hidden" name="branch" value="${escapeHtml(branch || "")}">
     ${starButtons()}
   </form>
-  <p class="hint" id="hint">نظر شما برای ما مهم است</p>
+  ${COPY.hint ? `<p class="hint" id="hint">${COPY.hint}</p>` : `<p id="hint" hidden></p>`}
   <p id="live" class="hp" aria-live="polite"></p>
 
   <section class="panel" id="feedback" hidden>
     <div class="empathy">
-      <h2>متأسفیم که تجربه‌تان ایده‌آل نبوده.</h2>
-      <p>خوشحال می‌شویم بدانیم چه چیزی می‌توانست بهتر باشد.</p>
+      <h2>${COPY.lowTitle}</h2>
+      <p>${COPY.lowBody}</p>
     </div>
     <form id="feedback-form" method="post" action="/review/feedback" novalidate>
       <input type="hidden" name="rating" id="fb-rating" value="">
@@ -394,14 +414,14 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
         <label>وب‌سایت<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
       </div>
       <label class="field">
-        <span>توضیحات</span>
-        <textarea name="comment" required maxlength="2000" placeholder="چه چیزی باعث شد تجربه خوبی نداشته باشید؟"></textarea>
+        <span>${COPY.comment}</span>
+        <textarea name="comment" required maxlength="2000" placeholder="${COPY.commentPh}"></textarea>
       </label>
       <label class="field">
-        <span>نام <small>(اختیاری)</small></span>
-        <input type="text" name="name" maxlength="80" placeholder="نام شما" autocomplete="name">
+        <span>${COPY.name} <small>(${COPY.nameOpt})</small></span>
+        <input type="text" name="name" maxlength="80" placeholder="${COPY.namePh}" autocomplete="name">
       </label>
-      <button class="btn" type="submit">ارسال بازخورد</button>
+      <button class="btn" type="submit">${COPY.send}</button>
     </form>
   </section>
 
@@ -409,8 +429,8 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
     <div class="mark" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4z"/></svg>
     </div>
-    <h2>از اینکه نظر خود را با ما در میان گذاشتید، ممنونیم.</h2>
-    <p>بازخورد شما برای ما ارزشمند است.</p>
+    <h2>${COPY.thanksTitle}</h2>
+    <p>${COPY.thanksBody}</p>
   </section>
 </main>`;
 
@@ -427,7 +447,7 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
 export function renderFeedbackPage({ settings, branch, rating, error }) {
   const primary = sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color);
   const secondary = sanitizeColor(settings.secondary_color, DEFAULT_SETTINGS.secondary_color);
-  const title = "ارسال بازخورد";
+  const title = COPY.title;
   const filled = [1, 2, 3, 4, 5]
     .map(
       (n) =>
@@ -441,8 +461,8 @@ export function renderFeedbackPage({ settings, branch, rating, error }) {
   <div class="stars is-locked" dir="ltr" aria-label="امتیاز ${rating} از ۵">${filled}</div>
   <section class="panel">
     <div class="empathy">
-      <h2>متأسفیم که تجربه‌تان ایده‌آل نبوده.</h2>
-      <p>خوشحال می‌شویم بدانیم چه چیزی می‌توانست بهتر باشد.</p>
+      <h2>${COPY.lowTitle}</h2>
+      <p>${COPY.lowBody}</p>
     </div>
     ${error ? `<p class="error">${escapeHtml(error)}</p>` : ""}
     <form method="post" action="/review/feedback">
@@ -452,14 +472,14 @@ export function renderFeedbackPage({ settings, branch, rating, error }) {
         <label>وب‌سایت<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
       </div>
       <label class="field">
-        <span>توضیحات</span>
-        <textarea name="comment" required maxlength="2000" placeholder="چه چیزی باعث شد تجربه خوبی نداشته باشید؟"></textarea>
+        <span>${COPY.comment}</span>
+        <textarea name="comment" required maxlength="2000" placeholder="${COPY.commentPh}"></textarea>
       </label>
       <label class="field">
-        <span>نام <small>(اختیاری)</small></span>
-        <input type="text" name="name" maxlength="80" placeholder="نام شما" autocomplete="name">
+        <span>${COPY.name} <small>(${COPY.nameOpt})</small></span>
+        <input type="text" name="name" maxlength="80" placeholder="${COPY.namePh}" autocomplete="name">
       </label>
-      <button class="btn" type="submit">ارسال بازخورد</button>
+      <button class="btn" type="submit">${COPY.send}</button>
     </form>
   </section>
 </main>`;
@@ -483,12 +503,12 @@ export function renderThanksPage(settings) {
     <div class="mark" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4z"/></svg>
     </div>
-    <h2>از اینکه نظر خود را با ما در میان گذاشتید، ممنونیم.</h2>
-    <p>بازخورد شما برای ما ارزشمند است.</p>
+    <h2>${COPY.thanksTitle}</h2>
+    <p>${COPY.thanksBody}</p>
   </section>
 </main>`;
   return documentPage({
-    title: "سپاس از بازخورد شما",
+    title: COPY.thanksTitle,
     themeColor: primary,
     css: reviewCss(primary, secondary),
     body,
@@ -503,12 +523,12 @@ export function renderNoPlatformPage(settings) {
 <main>
   ${brandBlock(settings)}
   <section class="thanks">
-    <h2>از توجه شما سپاسگزاریم.</h2>
-    <p class="note">در حال حاضر امکان انتقال به پلتفرم ثبت نظر وجود ندارد. لطفاً کمی بعد دوباره تلاش کنید.</p>
+    <h2>${COPY.noPlatformTitle}</h2>
+    <p class="note">${COPY.noPlatformBody}</p>
   </section>
 </main>`;
   return documentPage({
-    title: "ثبت نظر",
+    title: COPY.title,
     themeColor: primary,
     css: reviewCss(primary, secondary),
     body,

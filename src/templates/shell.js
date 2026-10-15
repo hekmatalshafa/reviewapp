@@ -1,7 +1,7 @@
 import { escapeHtml, sanitizeColor, DEFAULT_SETTINGS } from "../utils.js";
 
 export function fontFace() {
-  return `@font-face{font-family:"Vazirmatn";src:url("/fonts/Vazirmatn-Variable.woff2") format("woff2-variations"),url("/fonts/Vazirmatn-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+0020-007F,U+00A0-00FF,U+2010-2027,U+20A0-20CF;}`;
+  return `@font-face{font-family:"Vazirmatn";src:url("/fonts/Vazirmatn-Variable.woff2") format("woff2-variations"),url("/fonts/Vazirmatn-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;}`;
 }
 
 export function documentPage({
