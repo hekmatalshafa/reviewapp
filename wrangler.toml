@@ -1,0 +1,29 @@
+name = "reviewapp"
+main = "src/index.js"
+compatibility_date = "2025-10-01"
+workers_dev = true
+
+# Cloudflare Git / Workers Builds should run:
+#   npx wrangler deploy
+# This file is required. Without it, wrangler looks for a static site and fails with
+# "Could not detect a directory containing static files".
+
+# First `npx wrangler deploy` creates this D1 database automatically.
+# Do not put a placeholder database_id here — that is what made deploy fail.
+[[d1_databases]]
+binding = "DB"
+database_name = "reviewapp"
+migrations_dir = "migrations"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "none"
+
+[vars]
+ADMIN_PASSWORD = "admin123"
+SESSION_SECRET = "change-this-session-secret"
+
+[dev]
+ip = "0.0.0.0"
+port = 8787

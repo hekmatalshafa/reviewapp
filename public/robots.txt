@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /review
+Disallow: /admin
+Disallow: /api
