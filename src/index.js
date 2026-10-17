@@ -389,6 +389,14 @@ app.post("/admin/business", async (c) => {
     await setSetting(c.env.DB, "business_description", clampText(body.business_description, 400));
     await setSetting(c.env.DB, "business_phone", clampText(body.business_phone, 30));
     await setSetting(c.env.DB, "business_address", clampText(body.business_address, 200));
+    const website = String(body.website_url || "").trim();
+    const instagram = String(body.instagram_url || "").trim();
+    await setSetting(c.env.DB, "website_url", !website || isHttpUrl(website) ? website : settings.website_url || "");
+    await setSetting(
+      c.env.DB,
+      "instagram_url",
+      !instagram || isHttpUrl(instagram) ? instagram : settings.instagram_url || "",
+    );
     await setSetting(
       c.env.DB,
       "primary_color",

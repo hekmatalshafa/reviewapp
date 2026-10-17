@@ -1,6 +1,7 @@
 import {
   escapeHtml,
   safeImageSrc,
+  isHttpUrl,
 } from "../utils.js";
 import { documentPage, STAR_SVG } from "./shell.js";
 
@@ -66,12 +67,64 @@ button,input,textarea,select{font-family:inherit}
 main{
   width:min(430px,100%);
   margin:auto;
-  padding:max(28px, env(safe-area-inset-top)) 22px max(28px, env(safe-area-inset-bottom));
+  padding:calc(88px + env(safe-area-inset-top)) 22px max(28px, env(safe-area-inset-bottom));
   display:flex;
   flex-direction:column;
   align-items:center;
   text-align:center;
 }
+.island-wrap{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:50;
+  display:flex;
+  justify-content:center;
+  padding:max(12px, env(safe-area-inset-top)) 16px 0;
+  pointer-events:none;
+}
+.island{
+  pointer-events:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  width:min(268px, calc(100vw - 32px));
+  background:rgba(18,18,18,.78);
+  backdrop-filter:blur(20px) saturate(1.35);
+  -webkit-backdrop-filter:blur(20px) saturate(1.35);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  padding:5px 6px;
+  box-shadow:0 8px 28px rgba(0,0,0,.45);
+}
+.island-btn{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  text-decoration:none;
+  flex:none;
+  background:rgba(255,255,255,.06);
+}
+.island-btn svg{width:18px;height:18px;display:block}
+.island-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.island-btn[href]:hover{background:rgba(4,160,182,.22);color:var(--primary)}
+.island-btn:not([href]){opacity:.45}
+.island-logo{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  background:#000;
+  flex:none;
+}
+.island-logo img{width:34px;height:34px;object-fit:contain;display:block}
 .brand{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
 .brand img{
   max-height:64px;
@@ -252,6 +305,31 @@ input:focus-visible,textarea:focus-visible{
 `;
 }
 
+const GLOBE_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 3.2a8.8 8.8 0 1 0 0 17.6 8.8 8.8 0 0 0 0-17.6z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M3.6 12h16.8M12 3.2c2.4 2.4 3.6 5.4 3.6 8.8s-1.2 6.4-3.6 8.8c-2.4-2.4-3.6-5.4-3.6-8.8s1.2-6.4 3.6-8.8z"/></svg>`;
+
+const INSTAGRAM_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.4" y="3.4" width="17.2" height="17.2" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.15" cy="6.85" r="1.05" fill="currentColor"/></svg>`;
+
+function islandLink(href, label, svg) {
+  if (href) {
+    return `<a class="island-btn" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(label)}">${svg}</a>`;
+  }
+  return `<span class="island-btn" aria-hidden="true">${svg}</span>`;
+}
+
+function islandBar(settings) {
+  const web = isHttpUrl(settings.website_url) ? String(settings.website_url).trim() : "";
+  const ig = isHttpUrl(settings.instagram_url) ? String(settings.instagram_url).trim() : "";
+  return `<header class="island-wrap">
+    <nav class="island" dir="ltr" aria-label="دسترسی سریع">
+      ${islandLink(web, "وب‌سایت", GLOBE_SVG)}
+      <a class="island-logo" href="/" aria-label="صفحه اصلی">
+        <img src="/logo.png" alt="لوگوی کلینیک" width="34" height="34">
+      </a>
+      ${islandLink(ig, "اینستاگرام", INSTAGRAM_SVG)}
+    </nav>
+  </header>`;
+}
+
 function brandBlock(settings) {
   const raw = settings.business_logo || "";
   const logo = raw && raw !== "/logo.png" ? safeImageSrc(raw) : "";
@@ -398,6 +476,7 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
     : COPY.title;
 
   const body = `
+${islandBar(settings)}
 <main>
   ${brandBlock(settings)}
   <h1 id="ask">${COPY.ask}</h1>
@@ -461,6 +540,7 @@ export function renderFeedbackPage({ settings, branch, rating, error }) {
     .join("");
 
   const body = `
+${islandBar(settings)}
 <main>
   ${brandBlock(settings)}
   <div class="stars is-locked" dir="ltr" aria-label="امتیاز ${rating} از ۵">${filled}</div>
@@ -501,6 +581,7 @@ export function renderFeedbackPage({ settings, branch, rating, error }) {
 
 export function renderThanksPage(settings) {
   const body = `
+${islandBar(settings)}
 <main>
   ${brandBlock(settings)}
   <section class="thanks">
@@ -523,6 +604,7 @@ export function renderThanksPage(settings) {
 
 export function renderNoPlatformPage(settings) {
   const body = `
+${islandBar(settings)}
 <main>
   ${brandBlock(settings)}
   <section class="thanks">
