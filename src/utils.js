@@ -18,7 +18,7 @@ export const DEFAULT_SETTINGS = {
   business_name: "",
   business_logo: "",
   business_description: "",
-  business_phone: "",
+  business_phone: "0713302",
   business_address: "",
   website_url: "",
   instagram_url: "",
@@ -94,8 +94,11 @@ export function clampText(value, max) {
 export function normalizePhone(value) {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
-  const compact = raw.replace(/[\s\-()]/g, "");
-  if (!/^\+?\d{8,15}$/.test(compact)) return null;
+  const compact = raw
+    .replace(/[۰-۹]/g, (digit) => String(digit.charCodeAt(0) - 0x06f0))
+    .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
+    .replace(/[\s\-()]/g, "");
+  if (!/^\+?\d{7,15}$/.test(compact)) return null;
   return compact;
 }
 
