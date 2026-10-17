@@ -365,12 +365,13 @@ a.contact-card:focus-visible{outline:2px solid var(--navy);outline-offset:3px}
 }
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .float{
-  position:absolute;
+  position:fixed;
   top:auto;
   left:0;
   right:0;
-  bottom:0;
+  bottom:var(--sheet-bottom,0px);
   height:75dvh;
+  height:min(75svh,var(--sheet-visible-height,100svh));
   z-index:20;
   overflow-y:auto;
   overflow-x:hidden;
@@ -385,6 +386,7 @@ a.contact-card:focus-visible{outline:2px solid var(--navy);outline-offset:3px}
   animation:sheet-up .38s cubic-bezier(.22,1,.36,1) both;
   scroll-padding:24px;
 }
+@media(min-width:560px){.float{left:calc((100% - 480px)/2);right:calc((100% - 480px)/2)}}
 .sheet-handle{
   display:block;width:64px;height:28px;margin:-25px auto 16px;
   border:0;background:transparent;cursor:grab;touch-action:none;
@@ -601,7 +603,33 @@ const LANDING_SCRIPT = `
   var ratingInput=document.getElementById("fb-rating");
   var live=document.getElementById("live");
   var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Track the visible viewport, including keyboards that overlay the layout
+  // viewport (iOS Safari and Android configurations).
+  function syncSheetViewport(){
+    var viewport=window.visualViewport;
+    var height=viewport?viewport.height:window.innerHeight;
+    var offset=viewport?viewport.offsetTop:0;
+    document.documentElement.style.setProperty("--sheet-visible-height",height+"px");
+    document.documentElement.style.setProperty("--sheet-bottom",Math.max(0,window.innerHeight-height-offset)+"px");
+    window.requestAnimationFrame(function(){
+      var active=document.activeElement;
+      if(!feedback || feedback.hidden || !active || !feedback.contains(active))return;
+      if(!active.matches("textarea,input"))return;
+      var field=active.getBoundingClientRect();
+      var sheet=feedback.getBoundingClientRect();
+      var top=sheet.top+20, bottom=sheet.bottom-20;
+      if(field.bottom>bottom)feedback.scrollTop+=field.bottom-bottom;
+      else if(field.top<top)feedback.scrollTop-=top-field.top;
+    });
+  }
+  syncSheetViewport();
+  window.addEventListener("resize",syncSheetViewport);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize",syncSheetViewport);
+    window.visualViewport.addEventListener("scroll",syncSheetViewport);
+  }
   if(feedback){
+    feedback.addEventListener("focusin",syncSheetViewport);
     var handle=feedback.querySelector(".sheet-handle");
     var dragStart=null, dragY=0, closing=false;
     function dismissFeedback(){
@@ -701,8 +729,10 @@ const LANDING_SCRIPT = `
         form.classList.add("is-locked");
         stars.forEach(function(s){s.disabled=true});
         feedback.hidden=false;
-        var ta=feedback.querySelector("textarea");
-        if(ta) ta.focus({preventScroll:true});
+        feedback.scrollTop=0;
+        syncSheetViewport();
+        // Move accessibility focus without activating the software keyboard.
+        if(handle)handle.focus({preventScroll:true});
       }, reduce?0:280);
     }
   });
@@ -756,6 +786,7 @@ const LANDING_SCRIPT = `
       }).then(function(r){return r.json().then(function(d){return {ok:r.ok&&d&&d.ok, err:d&&d.error};});})
       .then(function(res){
         if(res.ok){
+          if(document.activeElement && feedback.contains(document.activeElement))document.activeElement.blur();
           feedback.hidden=true;
           form.hidden=true;
           if(ask) ask.hidden=true;
