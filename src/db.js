@@ -250,7 +250,7 @@ export async function getDashboardStats(db) {
     )
     .all();
 
-  const feedback = await db.prepare("SELECT COUNT(*) AS c FROM feedback").first();
+  const feedback = await db.prepare("SELECT COUNT(*) AS c FROM events WHERE type = 'feedback_submitted'").first();
 
   const stats = {
     ...empty,
