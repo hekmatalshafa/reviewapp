@@ -1,8 +1,6 @@
 import {
   escapeHtml,
   safeImageSrc,
-  sanitizeColor,
-  DEFAULT_SETTINGS,
 } from "../utils.js";
 import { documentPage, STAR_SVG } from "./shell.js";
 
@@ -33,28 +31,24 @@ const COPY = {
   title: "ثبت نظر",
 };
 
-function hexToRgba(hex, alpha) {
-  const n = parseInt(String(hex).slice(1), 16);
-  if (Number.isNaN(n)) return `rgba(26,95,82,${alpha})`;
-  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
-}
-
-function reviewCss(primary, secondary) {
-  const focusRing = hexToRgba(primary, 0.18);
-  const okWash = hexToRgba("#1A5F52", 0.12);
+function reviewCss() {
+  const teal = "#04A0B6";
+  const gold = "#F4C64A";
+  const focusRing = "rgba(4,160,182,.38)";
+  const okWash = "rgba(4,160,182,.16)";
   return `
 :root{
-  --bg:#F3EEE4;
-  --ink:#1C1915;
-  --muted:#6F6A62;
-  --line:#E4DCD0;
-  --card:#FFFcf6;
-  --star:${secondary};
-  --star-empty:#D6CFC3;
-  --primary:${primary};
-  --focus:${primary};
-  --danger:#9F2D20;
-  --ok:#1A5F52;
+  --bg:#000000;
+  --ink:#FFFFFF;
+  --muted:rgba(255,255,255,.62);
+  --line:rgba(255,255,255,.16);
+  --card:#141414;
+  --star:${gold};
+  --star-empty:rgba(244,198,74,.38);
+  --primary:${teal};
+  --focus:${teal};
+  --danger:#FF6B6B;
+  --ok:${teal};
   --radius:18px;
   --font:"Vazirmatn","Tahoma",system-ui,sans-serif;
 }
@@ -100,7 +94,7 @@ h1{
 .stars{
   display:flex;
   direction:ltr;
-  gap:6px;
+  gap:8px;
   border:0;
   background:none;
   padding:4px;
@@ -109,24 +103,36 @@ h1{
   appearance:none;
   border:0;
   background:transparent;
-  width:58px;
-  height:58px;
-  padding:4px;
+  width:56px;
+  height:56px;
+  padding:6px;
   color:var(--star-empty);
   cursor:pointer;
-  border-radius:14px;
+  border-radius:50%;
   touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
-  transition:color .12s ease, transform .12s ease;
+  transition:color .16s ease, transform .16s ease, background .16s ease;
 }
-.star svg{width:100%;height:100%;display:block;filter:drop-shadow(0 1px 0 rgba(28,25,21,.04))}
+.star svg{width:100%;height:100%;display:block;overflow:visible}
+.star svg path{
+  fill:transparent;
+  stroke:currentColor;
+  paint-order:stroke fill;
+  transition:fill .16s ease;
+}
 .star:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
-.star:active{transform:scale(.92)}
+.star:active{transform:scale(.94)}
 .star.is-on,.stars.is-locked .star.is-on{color:var(--star)}
+.star.is-on svg path,.stars.is-locked .star.is-on svg path{fill:currentColor}
+.star.is-on svg{
+  filter:drop-shadow(0 0 6px rgba(244,198,74,.95)) drop-shadow(0 0 16px rgba(244,198,74,.55)) drop-shadow(0 0 28px rgba(244,198,74,.28));
+}
 @media (hover:hover){
   .stars:not(.is-locked):hover .star{color:var(--star)}
+  .stars:not(.is-locked):hover .star svg path{fill:currentColor}
   .stars:not(.is-locked) .star:hover ~ .star{color:var(--star-empty)}
+  .stars:not(.is-locked) .star:hover ~ .star svg path{fill:transparent}
 }
 .hint{
   margin-top:26px;
@@ -175,8 +181,10 @@ input[type=text],input[type=tel],textarea{
   font-size:16px;
   line-height:1.7;
   outline:none;
+  caret-color:var(--primary);
   transition:border-color .12s, box-shadow .12s;
 }
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.38)}
 textarea{min-height:128px;resize:vertical}
 input:focus-visible,textarea:focus-visible{
   border-color:var(--primary);
@@ -234,8 +242,8 @@ input:focus-visible,textarea:focus-visible{
 .error{color:var(--danger);font-size:.9rem;margin-top:10px;text-align:center}
 [hidden]{display:none !important}
 @media (max-width:380px){
-  .star{width:50px;height:50px}
-  .stars{gap:4px}
+  .star{width:50px;height:50px;padding:5px}
+  .stars{gap:6px}
   h1{font-size:1.32rem}
 }
 @media (prefers-reduced-motion:reduce){
@@ -385,8 +393,6 @@ const REVIEW_SCRIPT = `
 `;
 
 export function renderReviewPage({ settings, branch, redirectUrl }) {
-  const primary = sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color);
-  const secondary = sanitizeColor(settings.secondary_color, DEFAULT_SETTINGS.secondary_color);
   const title = settings.business_name
     ? `${COPY.title} | ${settings.business_name}`
     : COPY.title;
@@ -436,17 +442,16 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
 
   return documentPage({
     title,
-    themeColor: primary,
-    css: reviewCss(primary, secondary),
+    themeColor: "#000000",
+    css: reviewCss(),
     body,
     script: REVIEW_SCRIPT,
     bodyClass: "review",
+    colorScheme: "dark",
   });
 }
 
 export function renderFeedbackPage({ settings, branch, rating, error }) {
-  const primary = sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color);
-  const secondary = sanitizeColor(settings.secondary_color, DEFAULT_SETTINGS.secondary_color);
   const title = COPY.title;
   const filled = [1, 2, 3, 4, 5]
     .map(
@@ -486,16 +491,15 @@ export function renderFeedbackPage({ settings, branch, rating, error }) {
 
   return documentPage({
     title,
-    themeColor: primary,
-    css: reviewCss(primary, secondary),
+    themeColor: "#000000",
+    css: reviewCss(),
     body,
     bodyClass: "review",
+    colorScheme: "dark",
   });
 }
 
 export function renderThanksPage(settings) {
-  const primary = sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color);
-  const secondary = sanitizeColor(settings.secondary_color, DEFAULT_SETTINGS.secondary_color);
   const body = `
 <main>
   ${brandBlock(settings)}
@@ -509,16 +513,15 @@ export function renderThanksPage(settings) {
 </main>`;
   return documentPage({
     title: COPY.thanksTitle,
-    themeColor: primary,
-    css: reviewCss(primary, secondary),
+    themeColor: "#000000",
+    css: reviewCss(),
     body,
     bodyClass: "review",
+    colorScheme: "dark",
   });
 }
 
 export function renderNoPlatformPage(settings) {
-  const primary = sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color);
-  const secondary = sanitizeColor(settings.secondary_color, DEFAULT_SETTINGS.secondary_color);
   const body = `
 <main>
   ${brandBlock(settings)}
@@ -529,9 +532,10 @@ export function renderNoPlatformPage(settings) {
 </main>`;
   return documentPage({
     title: COPY.title,
-    themeColor: primary,
-    css: reviewCss(primary, secondary),
+    themeColor: "#000000",
+    css: reviewCss(),
     body,
     bodyClass: "review",
+    colorScheme: "dark",
   });
 }
