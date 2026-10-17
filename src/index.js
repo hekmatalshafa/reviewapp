@@ -377,6 +377,14 @@ app.post("/admin/business", async (c) => {
   const settings = await getSettings(c.env.DB);
   const body = await c.req.parseBody();
 
+  const websiteInput = String(body.website_url || "").trim();
+  const instagramInput = String(body.instagram_url || "").trim();
+  if ((websiteInput && !isHttpUrl(websiteInput)) || (instagramInput && !isHttpUrl(instagramInput))) {
+    return html(c, renderBusiness({
+      settings: { ...settings, business_name: clampText(body.business_name,80), business_description: clampText(body.business_description,400), business_phone: clampText(body.business_phone,30), business_address: clampText(body.business_address,200), website_url: websiteInput, instagram_url: instagramInput },
+      error: "لینک وب‌سایت و اینستاگرام باید با https:// یا http:// شروع شود.",
+    }), 400);
+  }
   try {
     let logo = settings.business_logo || "";
     if (body.remove_logo) logo = "";
@@ -396,16 +404,6 @@ app.post("/admin/business", async (c) => {
       c.env.DB,
       "instagram_url",
       !instagram || isHttpUrl(instagram) ? instagram : settings.instagram_url || "",
-    );
-    await setSetting(
-      c.env.DB,
-      "primary_color",
-      sanitizeColor(body.primary_color, DEFAULT_SETTINGS.primary_color),
-    );
-    await setSetting(
-      c.env.DB,
-      "secondary_color",
-      sanitizeColor(body.secondary_color, DEFAULT_SETTINGS.secondary_color),
     );
     await setSetting(c.env.DB, "business_logo", logo);
     setFlash(c, "اطلاعات کسب‌وکار ذخیره شد.");

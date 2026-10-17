@@ -1,5 +1,5 @@
 import { escapeHtml, safeImageSrc, isHttpUrl, normalizePhone } from "../utils.js";
-import { documentPage, STAR_SVG } from "./shell.js";
+import { documentPage, STAR_SVG, STAR_PATH } from "./shell.js";
 
 const STAR_LABELS = [
   "امتیاز ۱ از ۵، خیلی ضعیف",
@@ -10,7 +10,7 @@ const STAR_LABELS = [
 ];
 
 const COPY = {
-  ask: "از خدمات ما راضی بودید؟",
+  ask: "میزان رضایت خود را ثبت کنید.",
   hint: "",
   lowTitle: "متأسفیم که رضایت نداشتید.",
   lowBody: "لطفاً دلیل را بنویسید تا بررسی کنیم.",
@@ -21,38 +21,82 @@ const COPY = {
   namePh: "نام شما",
   send: "ثبت",
   sending: "در حال ارسال…",
-  thanksTitle: "نظر شما ثبت شد.",
+  thanksTitle: "نظر و امتیاز شما ثبت شد",
   thanksBody: "سپاسگزاریم.",
   noPlatformTitle: "در حال حاضر امکان ثبت نظر فراهم نیست.",
   noPlatformBody: "لطفاً کمی بعد دوباره تلاش کنید.",
   title: "ثبت نظر",
-  sub: "با امتیاز دادن، به ما کمک کنید",
+  sub: "با امتیاز دادن به بهبود خدمات این مجموعه کمک میکنید",
 };
 
-const STAR_D =
-  "M12 2.4 14.55 8.7l6.75.52-5.14 4.42 1.57 6.58L12 16.95 6.27 20.22l1.57-6.58L2.7 9.22l6.75-.52Z";
+const STAR_D = STAR_PATH;
 
 const GLOBE_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path fill="none" stroke="currentColor" stroke-width="1.8" d="M3.8 12h16.4M12 3.8c2.3 2.5 3.5 5.4 3.5 8.2s-1.2 5.7-3.5 8.2c-2.3-2.5-3.5-5.4-3.5-8.2s1.2-5.7 3.5-8.2z"/></svg>`;
 const INSTAGRAM_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.1" cy="6.9" r="1.05" fill="currentColor"/></svg>`;
 const PHONE_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M7.2 3.8h3.1l1.2 3.2-1.9 1.2a12.4 12.4 0 0 0 5.2 5.2l1.2-1.9 3.2 1.2v3.1c0 .7-.6 1.4-1.3 1.5-7.2.9-13.3-5.2-12.4-12.4.1-.7.8-1.3 1.7-1.3z"/></svg>`;
+
+function instagramFollow(settings) {
+  const url = String(settings.instagram_url || "").trim();
+  if (!isHttpUrl(url)) {
+    return `<button class="instagram-follow" type="button" disabled aria-describedby="instagram-unconfigured">${INSTAGRAM_SVG}<span>پیج اینستاگرام و هم دنبال کنید</span></button><p class="instagram-note" id="instagram-unconfigured">لینک اینستاگرام هنوز تنظیم نشده است.</p>`;
+  }
+  return `<a class="instagram-follow" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${INSTAGRAM_SVG}<span>پیج اینستاگرام و هم دنبال کنید</span></a>`;
+}
+
+const INSTAGRAM_FOLLOW_CSS = `
+.thanks .mark{
+  width:52px;height:52px;flex:none;margin:0 auto 20px;border-radius:18px;
+  color:#fff;background:linear-gradient(145deg,#42CC92 0%,#21AA71 55%,#168959 100%);
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:inset 0 2px 1px rgba(255,255,255,.3),0 8px 20px rgba(28,151,99,.18),0 0 0 8px rgba(42,180,122,.07);
+}
+.thanks .mark svg{width:26px;height:26px;filter:drop-shadow(0 1px 1px rgba(0,80,45,.15))}
+
+.instagram-follow{
+  border:0;font-family:inherit;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  max-width:100%;margin-top:26px;padding:14px 18px;border-radius:16px;
+  background:linear-gradient(115deg,#A9379A,#C83772,#DA6545);
+  color:#fff;text-decoration:none;font-size:.88rem;font-weight:600;line-height:1.8;
+  box-shadow:0 5px 16px rgba(190,55,118,.16);transition:filter .2s ease;
+}
+.instagram-follow:disabled{cursor:not-allowed;opacity:.7}
+.instagram-note{font-size:.75rem!important;margin-top:10px;color:var(--muted);line-height:1.8}
+.instagram-follow svg{width:22px;height:22px;flex:none}
+.instagram-follow:hover{filter:brightness(1.08)}
+.instagram-follow:focus-visible{outline:2px solid #B53D86;outline-offset:4px}
+`;
 
 function glossyStarSvg(index) {
   const g = `sg${index}`;
   const h = `sh${index}`;
   return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
     <defs>
+      <linearGradient id="se${index}" x1="5" y1="3" x2="18" y2="22" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#FFFFFF"/><stop offset=".48" stop-color="#F6FAFF"/><stop offset="1" stop-color="#CAD7E7"/>
+      </linearGradient>
+      <filter id="bevel${index}" x="-30%" y="-30%" width="160%" height="180%" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceAlpha" stdDeviation=".45" result="blur"/>
+        <feOffset in="blur" dx="0" dy="-.65" result="offset"/>
+        <feComposite in="SourceAlpha" in2="offset" operator="out" result="edge"/>
+        <feFlood flood-color="#875013" flood-opacity=".25"/>
+        <feComposite in2="edge" operator="in" result="shade"/>
+        <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/></feMerge>
+      </filter>
       <linearGradient id="${g}" x1="6" y1="2" x2="17" y2="21" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stop-color="#FFE889"/>
-        <stop offset=".42" stop-color="#FFC727"/>
-        <stop offset="1" stop-color="#FF9B00"/>
+        <stop offset="0" stop-color="#FFEBA6"/>
+        <stop offset=".38" stop-color="#FFDB78"/>
+        <stop offset=".7" stop-color="#FFC13C"/>
+        <stop offset="1" stop-color="#E99A24"/>
       </linearGradient>
       <linearGradient id="${h}" x1="12" y1="3" x2="12" y2="11" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="#FFFFFF" stop-opacity=".7"/>
         <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
       </linearGradient>
     </defs>
-    <path class="shape-empty" d="${STAR_D}" fill="#FFFFFF" stroke="#B7C4D4" stroke-width="1.35" stroke-linejoin="round" stroke-linecap="round"/>
-    <path class="shape-gold" d="${STAR_D}" fill="url(#${g})" stroke="#E09400" stroke-width="1.05" stroke-linejoin="round" stroke-linecap="round"/>
+    <path class="shape-depth" d="${STAR_D}" transform="translate(0 .85)" fill="#AFBED2"/>
+    <path class="shape-empty" d="${STAR_D}" fill="url(#se${index})" filter="url(#bevel${index})" stroke="#C4CDD8" stroke-width=".55" stroke-linejoin="round" stroke-linecap="round"/>
+    <path class="shape-gold" d="${STAR_D}" fill="url(#${g})" filter="url(#bevel${index})" stroke="#E7AD48" stroke-width=".7" stroke-linejoin="round" stroke-linecap="round"/>
     <path class="shape-shine" d="${STAR_D}" fill="url(#${h})"/>
   </svg>
   <span class="burst" aria-hidden="true"><i style="--r:0"></i><i style="--r:1"></i><i style="--r:2"></i><i style="--r:3"></i><i style="--r:4"></i></span>`;
@@ -73,23 +117,17 @@ function headerLogo(settings) {
   return `<span class="logo-ph" aria-hidden="true"></span>`;
 }
 
-function menuItem(href, label, icon, extra = "") {
-  if (href) {
-    return `<a class="drawer-link" href="${escapeHtml(href)}" ${extra}>${icon}<span>${escapeHtml(label)}</span></a>`;
-  }
-  return `<span class="drawer-link is-off">${icon}<span>${escapeHtml(label)}</span></span>`;
-}
-
-function socialLinks(settings) {
-  const web = String(settings.website_url || "").trim();
-  const ig = String(settings.instagram_url || "").trim();
-  const compact = normalizePhone(settings.business_phone);
-  const telHref = compact ? `tel:${compact}` : "";
-  return `<div class="drawer-group">
-    ${menuItem(isHttpUrl(web) ? web : "", "وبسایت", GLOBE_SVG, 'target="_blank" rel="noopener noreferrer"')}
-    ${menuItem(isHttpUrl(ig) ? ig : "", "اینستاگرام", INSTAGRAM_SVG, 'target="_blank" rel="noopener noreferrer"')}
-    ${menuItem(telHref, "تماس", PHONE_SVG, "")}
-  </div>`;
+function contactCards(settings) {
+  const phone = normalizePhone(settings.business_phone);
+  const items = [
+    ["وبسایت", isHttpUrl(settings.website_url || "") ? settings.website_url : "", GLOBE_SVG],
+    ["اینستاگرام", isHttpUrl(settings.instagram_url || "") ? settings.instagram_url : "", INSTAGRAM_SVG],
+    ["تماس", phone ? `tel:${phone}` : "", PHONE_SVG],
+  ];
+  return `<nav class="contact-cards" aria-label="راه‌های ارتباط با ما">${items.map(([label, href, icon]) =>
+    href ? `<a class="contact-card" href="${escapeHtml(href)}"${href.startsWith("tel:") ? "" : ' target="_blank" rel="noopener noreferrer"'}>${icon}<span>${label}</span></a>`
+      : `<span class="contact-card is-unconfigured" aria-disabled="true">${icon}<span>${label}</span></span>`
+  ).join("")}</nav>`;
 }
 
 function landingCss() {
@@ -131,21 +169,41 @@ button,input,textarea,select{font-family:inherit}
   object-position:center bottom;
   display:block;
 }
+.contact-cards{
+  position:absolute;top:max(18px, env(safe-area-inset-top));left:0;right:0;
+  width:min(370px,calc(100% - 32px));margin-inline:auto;
+  z-index:6;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+}
+.contact-card{
+  display:flex;align-items:center;justify-content:center;gap:7px;min-height:46px;padding:10px 6px;
+  text-decoration:none;color:var(--navy);font-size:.85rem;font-weight:500;
+  border:1px solid rgba(255,255,255,.58);border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(240,249,255,.16));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 6px 24px rgba(11,42,91,.05);
+  backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+  transition:background .2s ease;
+}
+.contact-card svg{width:18px;height:18px;flex:none;opacity:.8}
+.contact-card svg [stroke]{stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:350px){.contact-card{gap:5px;font-size:.78rem}.contact-card svg{width:16px;height:16px}}
+a.contact-card:hover{background:rgba(255,255,255,.6)}
+a.contact-card:focus-visible{outline:2px solid var(--navy);outline-offset:3px}
+.contact-card.is-unconfigured{opacity:.55}
 .top{
   position:absolute;
-  top:0;left:0;right:0;
-  z-index:20;
+  top:auto;left:16px;right:16px;
+  bottom:max(24px, env(safe-area-inset-bottom));
+  z-index:5;
   display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:max(12px, env(safe-area-inset-top)) 16px 8px;
+  justify-content:center;
 }
 .brand{
   display:flex;
+  flex-direction:column;
   align-items:center;
   gap:10px;
   min-width:0;
+  max-width:100%;
 }
 .logo,.logo-ph{
   width:44px;
@@ -157,104 +215,33 @@ button,input,textarea,select{font-family:inherit}
   border:1px solid rgba(11,42,91,.12);
 }
 .logo-ph{box-shadow:inset 0 0 0 1px rgba(11,42,91,.04)}
-.brand-text{min-width:0;text-align:right}
+.brand-text{
+  min-width:0;text-align:center;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.58);
+  border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(240,249,255,.16));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(255,255,255,.12),0 6px 24px rgba(11,42,91,.05);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+}
+.brand-admin-link{color:inherit;text-decoration:none}
+.brand-admin-link:focus-visible{outline:2px solid var(--navy);outline-offset:3px;border-radius:4px}
+.brand-text .kicker,.brand-text .name{white-space:normal;overflow-wrap:anywhere}
+
 .brand-text .kicker{
   font-size:14px;
   font-weight:400;
   color:var(--navy);
   line-height:1.35;
-  white-space:nowrap;
+  white-space:normal;
 }
 .brand-text .name{
   font-size:18px;
   font-weight:800;
   color:var(--navy);
   line-height:1.35;
-  white-space:nowrap;
-}
-.burger{
-  appearance:none;
-  border:0;
-  background:transparent;
-  width:44px;
-  height:44px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:5px;
-  cursor:pointer;
-  flex:none;
-  padding:8px;
-}
-.burger span{
-  display:block;
-  width:28px;
-  height:3px;
-  border-radius:3px;
-  background:var(--navy);
-}
-.burger:focus-visible{outline:2px solid var(--navy);outline-offset:3px;border-radius:10px}
-.backdrop{
-  position:absolute;
-  inset:0;
-  z-index:30;
-  background:rgba(11,42,91,.28);
-  border:0;
-  padding:0;
-  cursor:pointer;
-}
-.drawer{
-  position:absolute;
-  top:0;
-  left:0;
-  bottom:0;
-  z-index:40;
-  width:min(300px,86%);
-  background:#fff;
-  color:var(--navy);
-  padding:max(18px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
-  box-shadow:12px 0 40px rgba(11,42,91,.16);
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  transform:translateX(-100%);
-  transition:transform .24s ease;
-}
-.drawer.is-open{transform:none}
-.drawer-close{
-  appearance:none;
-  align-self:flex-start;
-  border:0;
-  background:#E7F3FC;
-  color:var(--navy);
-  font-size:.9rem;
-  font-weight:700;
-  padding:8px 12px;
-  border-radius:10px;
-  cursor:pointer;
-  margin-bottom:10px;
-}
-.drawer-link{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:12px 10px;
-  border-radius:12px;
-  color:var(--navy);
-  text-decoration:none;
-  font-weight:700;
-  font-size:1rem;
-}
-.drawer-link svg{width:20px;height:20px;flex:none}
-.drawer-link:hover{background:#E7F3FC}
-.drawer-link.is-off{opacity:.4;cursor:default}
-.drawer-group{display:flex;flex-direction:column;gap:4px}
-.drawer-admin{
-  margin-top:auto;
-  border-top:1px solid rgba(11,42,91,.1);
-  border-radius:0 0 12px 12px;
-  padding-top:16px;
+  white-space:normal;
 }
 .hero{
   position:absolute;
@@ -268,19 +255,30 @@ button,input,textarea,select{font-family:inherit}
   align-items:center;
   text-align:center;
 }
+.hero-copy{
+  width:100%;max-width:370px;
+  padding:20px 18px;margin-bottom:12px;
+  border:1px solid rgba(255,255,255,.58);
+  border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(240,249,255,.16));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(255,255,255,.12),0 8px 28px rgba(11,42,91,.06);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+}
 .hero h1{
-  font-size:36px;
-  font-weight:800;
+  font-size:clamp(16px,5vw,23px);
+  white-space:nowrap;
+  font-weight:700;
   color:#0B2A5B;
-  line-height:1.45;
-  margin:0 0 8px;
+  line-height:1.6;
+  margin:0 0 6px;
 }
 .hero .sub{
-  font-size:20px;
-  font-weight:700;
-  color:#7A8BA8;
-  line-height:1.6;
-  margin:0 0 18px;
+  font-size:14px;
+  font-weight:400;
+  color:#425B76;
+  line-height:1.8;
+  margin:0;
 }
 .stars{
   display:flex;
@@ -291,6 +289,20 @@ button,input,textarea,select{font-family:inherit}
   padding:4px 0;
   justify-content:center;
 }
+/* A quiet surface keeps the dimensional stars legible over the photo. */
+.hero > .stars{
+  width:fit-content;
+  max-width:100%;
+  gap:8px;
+  padding:8px 12px;
+  background:linear-gradient(135deg,rgba(255,255,255,.36),rgba(240,249,255,.12));
+  border:1px solid rgba(255,255,255,.52);
+  border-radius:18px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -1px 0 rgba(255,255,255,.1),0 6px 24px rgba(11,42,91,.05);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+}
+.hero > .stars .star{width:clamp(42px,12vw,60px);height:clamp(42px,12vw,60px);flex:none}
 .star{
   appearance:none;
   border:0;
@@ -309,16 +321,19 @@ button,input,textarea,select{font-family:inherit}
   height:100%;
   display:block;
   overflow:visible;
-  filter:drop-shadow(0 3px 2px rgba(11,42,91,.10)) drop-shadow(0 8px 12px rgba(11,42,91,.12));
+  filter:drop-shadow(0 4px 6px rgba(11,42,91,.08));
+  transition:transform .2s ease,filter .2s ease;
 }
 .star .shape-gold,
 .star .shape-shine{display:none}
 .star.is-on .shape-gold,
 .star.is-on .shape-shine{display:block}
 .star.is-on .shape-empty{display:none}
+.star.is-on .shape-depth{fill:#C98B24}
 .star.is-on svg{
   filter:drop-shadow(0 3px 4px rgba(255,155,0,.35)) drop-shadow(0 8px 14px rgba(255,168,0,.22));
 }
+@media (hover:hover){.star:hover svg{transform:translateY(-3px) rotate(-4deg)}}
 .star:focus-visible{outline:2px solid var(--navy);outline-offset:4px;border-radius:50%}
 .burst{
   position:absolute;
@@ -351,17 +366,40 @@ button,input,textarea,select{font-family:inherit}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .float{
   position:absolute;
-  top:16%;
-  left:16px;
-  right:16px;
-  bottom:38%;
-  z-index:8;
-  overflow:auto;
-  background:rgba(255,255,255,.94);
-  border-radius:20px;
-  padding:16px 16px 14px;
+  top:auto;
+  left:0;
+  right:0;
+  bottom:0;
+  height:75dvh;
+  z-index:20;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  background:#FAFCFE;
+  border:1px solid rgba(255,255,255,.8);
+  border-bottom:0;
+  border-radius:28px 28px 0 0;
+  padding:32px 24px max(24px, env(safe-area-inset-bottom));
   text-align:right;
-  box-shadow:0 12px 32px rgba(11,42,91,.12);
+  box-shadow:0 -12px 48px rgba(11,42,91,.18),0 -80vh 0 40vh rgba(11,42,91,.22);
+  animation:sheet-up .38s cubic-bezier(.22,1,.36,1) both;
+  scroll-padding:24px;
+}
+.sheet-handle{
+  display:block;width:64px;height:28px;margin:-25px auto 16px;
+  border:0;background:transparent;cursor:grab;touch-action:none;
+}
+.sheet-handle::before{
+  content:"";display:block;width:36px;height:4px;border-radius:4px;
+  background:#D4DEE7;margin:auto;
+}
+.sheet-handle:active{cursor:grabbing}
+.sheet-handle:focus-visible{outline:2px solid var(--navy);border-radius:8px}
+.float form,.float .field{min-width:0;max-width:100%}
+.float textarea{max-width:100%;resize:vertical}
+@keyframes sheet-up{
+  from{transform:translateY(100%);opacity:0}
+  to{transform:translateY(0);opacity:1}
 }
 .empathy h2{
   font-size:1.05rem;
@@ -415,10 +453,10 @@ input:focus-visible,textarea:focus-visible{border-color:var(--navy);box-shadow:0
   touch-action:manipulation;
 }
 .btn:disabled{opacity:.65;cursor:wait}
-.thanks{text-align:center;padding-top:12px}
+.thanks{text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 24px}
 .thanks .mark{
   width:56px;height:56px;margin:0 auto 12px;border-radius:50%;
-  background:#E7F3FC;color:var(--navy);display:grid;place-items:center;
+  background:#E5F7ED;color:#20965C;display:grid;place-items:center;
 }
 .thanks .mark svg{width:28px;height:28px}
 .thanks h2{font-size:1.1rem;font-weight:800;margin-bottom:6px}
@@ -428,8 +466,8 @@ input:focus-visible,textarea:focus-visible{border-color:var(--navy);box-shadow:0
 .stage:has(#feedback:not([hidden])) .hero,
 .stage:has(#thanks:not([hidden])) .hero{visibility:hidden;pointer-events:none}
 @media (max-width:400px){
-  .hero h1{font-size:28px}
-  .hero .sub{font-size:16px}
+  .hero h1{font-size:clamp(16px,5vw,23px)}
+  .hero .sub{font-size:13px}
   .star{width:52px;height:52px}
   .stars{gap:8px}
   .brand-text .name{font-size:16px}
@@ -437,7 +475,7 @@ input:focus-visible,textarea:focus-visible{border-color:var(--navy);box-shadow:0
 }
 @media (max-height:700px){
   .hero{top:14%}
-  .hero h1{font-size:28px}
+  .hero h1{font-size:clamp(16px,5vw,23px)}
   .star{width:52px;height:52px}
 }
 @media (min-width:560px){
@@ -454,7 +492,7 @@ input:focus-visible,textarea:focus-visible{border-color:var(--navy);box-shadow:0
   }
 }
 @media (prefers-reduced-motion:reduce){
-  .star.is-pop,.star.is-pop .burst i,.drawer{animation:none;transition:none}
+  .star.is-pop,.star.is-pop .burst i,.drawer,.float,.contact-card{animation:none;transition:none}
 }
 `;
 }
@@ -552,23 +590,6 @@ input:focus-visible,textarea:focus-visible{border-color:var(--primary);box-shado
 const LANDING_SCRIPT = `
 (function(){
   var form=document.getElementById("rating-form");
-  var burger=document.getElementById("burger");
-  var drawer=document.getElementById("drawer");
-  var backdrop=document.getElementById("backdrop");
-  var closeBtn=document.getElementById("drawer-close");
-  function setMenu(open){
-    if(!drawer)return;
-    drawer.classList.toggle("is-open", open);
-    drawer.hidden=!open;
-    if(backdrop) backdrop.hidden=!open;
-    if(burger) burger.setAttribute("aria-expanded", open ? "true" : "false");
-    document.body.style.overflow=open ? "hidden" : "";
-  }
-  if(burger) burger.addEventListener("click", function(){ setMenu(drawer && drawer.hidden); });
-  if(closeBtn) closeBtn.addEventListener("click", function(){ setMenu(false); });
-  if(backdrop) backdrop.addEventListener("click", function(){ setMenu(false); });
-  document.addEventListener("keydown", function(e){ if(e.key==="Escape") setMenu(false); });
-
   if(!form)return;
   var redirect=form.getAttribute("data-redirect")||"";
   var branch=form.getAttribute("data-branch")||"";
@@ -580,6 +601,56 @@ const LANDING_SCRIPT = `
   var ratingInput=document.getElementById("fb-rating");
   var live=document.getElementById("live");
   var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(feedback){
+    var handle=feedback.querySelector(".sheet-handle");
+    var dragStart=null, dragY=0, closing=false;
+    function dismissFeedback(){
+      if(closing || feedback.hidden)return;
+      closing=true;
+      if(document.activeElement && feedback.contains(document.activeElement)) document.activeElement.blur();
+      function finish(){
+        feedback.hidden=true;
+        feedback.style.transform="";
+        feedback.style.animation="";
+        feedback.style.transition="";
+        form.classList.remove("is-locked");
+        stars.forEach(function(star){star.disabled=false});
+        if(ask)ask.hidden=false;
+        if(hint)hint.hidden=false;
+        closing=false;
+        var selected=form.querySelector('[aria-checked="true"]');
+        if(selected)selected.focus({preventScroll:true});
+      }
+      if(reduce){finish();return;}
+      feedback.style.animation="none";
+      feedback.style.transition="transform .25s ease";
+      feedback.style.transform="translateY(100%)";
+      setTimeout(finish,250);
+    }
+    handle.addEventListener("click",function(e){if(e.detail===0 || dragY<5)dismissFeedback();});
+    handle.addEventListener("pointerdown",function(e){
+      if(closing || (e.pointerType==="mouse" && e.button!==0))return;
+      dragStart=e.clientY;dragY=0;
+      handle.setPointerCapture(e.pointerId);
+      feedback.style.animation="none";
+      feedback.style.transition="none";
+    });
+    handle.addEventListener("pointermove",function(e){
+      if(dragStart===null)return;
+      dragY=Math.max(0,e.clientY-dragStart);
+      feedback.style.transform="translateY("+dragY+"px)";
+    });
+    function endDrag(e){
+      if(dragStart===null)return;
+      dragStart=null;
+      if(e.type!=="pointercancel" && dragY>70){dismissFeedback();return;}
+      feedback.style.transition=reduce?"none":"transform .2s ease";
+      feedback.style.transform="translateY(0)";
+    }
+    handle.addEventListener("pointerup",endDrag);
+    handle.addEventListener("pointercancel",endDrag);
+    feedback.addEventListener("keydown",function(e){if(e.key==="Escape")dismissFeedback();});
+  }
   function paint(n){
     stars.forEach(function(s){
       var v=+s.getAttribute("data-rating");
@@ -631,7 +702,7 @@ const LANDING_SCRIPT = `
         stars.forEach(function(s){s.disabled=true});
         feedback.hidden=false;
         var ta=feedback.querySelector("textarea");
-        if(ta) ta.focus();
+        if(ta) ta.focus({preventScroll:true});
       }, reduce?0:280);
     }
   });
@@ -665,8 +736,16 @@ const LANDING_SCRIPT = `
   var fbForm=document.getElementById("feedback-form");
   if(fbForm){
     fbForm.addEventListener("submit",function(e){
-      if(!window.fetch)return;
       e.preventDefault();
+      var error=fbForm.querySelector(".submit-error");
+      if(error){error.hidden=true;error.textContent="";}
+      var comment=fbForm.querySelector("textarea[name=comment]");
+      if(comment && comment.value.trim().length<3){
+        error.textContent="لطفاً توضیحات را بنویسید (حداقل ۳ حرف).";
+        error.hidden=false;
+        comment.focus({preventScroll:true});
+        return;
+      }
       var btn=fbForm.querySelector("[type=submit]");
       if(btn){btn.disabled=true;btn.textContent=${JSON.stringify("در حال ارسال…")};}
       fetch("/review/feedback",{
@@ -683,11 +762,14 @@ const LANDING_SCRIPT = `
           if(hint) hint.hidden=true;
           if(thanks) thanks.hidden=false;
         }else{
-          throw new Error(res.err||"fail");
+          throw new Error(res.err||"ثبت نظر انجام نشد. لطفاً دوباره تلاش کنید.");
         }
-      }).catch(function(){
+      }).catch(function(err){
         if(btn){btn.disabled=false;btn.textContent=${JSON.stringify("ثبت")};}
-        fbForm.submit();
+        if(error){
+          error.textContent=err.message==="Failed to fetch"?"ارتباط برقرار نشد. لطفاً دوباره تلاش کنید.":err.message;
+          error.hidden=false;
+        }
       });
     });
   }
@@ -706,29 +788,23 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
     <img src="/assets/hero.jpg" alt="" width="1024" height="1536">
   </picture>
 
+  ${contactCards(settings)}
+
   <header class="top">
     <div class="brand">
       ${headerLogo(settings)}
       <div class="brand-text">
         <div class="kicker">کلینیک شبانه روزی تخصصی</div>
-        <div class="name">دندانپزشکی حکمت‌الشفاء</div>
+        <div class="name">دندانپزشکی <a class="brand-admin-link" href="/admin">حکمت‌الشفاء</a></div>
       </div>
     </div>
-    <button class="burger" id="burger" type="button" aria-label="منو" aria-expanded="false" aria-controls="drawer">
-      <span></span><span></span><span></span>
-    </button>
   </header>
 
-  <button class="backdrop" id="backdrop" type="button" hidden aria-label="بستن منو"></button>
-  <nav class="drawer" id="drawer" hidden aria-label="منو">
-    <button class="drawer-close" id="drawer-close" type="button">بستن</button>
-    ${socialLinks(settings)}
-    <a class="drawer-link drawer-admin" href="/admin">پنل مدیریت</a>
-  </nav>
-
   <div class="hero">
-    <h1 id="ask">${COPY.ask}</h1>
-    <p class="sub" id="hint">${COPY.sub}</p>
+    <div class="hero-copy">
+      <h1 id="ask">${COPY.ask}</h1>
+      <p class="sub" id="hint">${COPY.sub}</p>
+    </div>
     <form id="rating-form" class="stars" method="post" action="/review/rate" dir="ltr" role="radiogroup" aria-labelledby="ask" data-redirect="${escapeHtml(redirectUrl || "")}" data-branch="${escapeHtml(branch || "")}">
       <input type="hidden" name="branch" value="${escapeHtml(branch || "")}">
       ${landingStarButtons()}
@@ -737,6 +813,7 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
   </div>
 
   <section class="float" id="feedback" hidden>
+    <button class="sheet-handle" type="button" aria-label="بستن فرم بازخورد"></button>
     <div class="empathy">
       <h2>${COPY.lowTitle}</h2>
       <p>${COPY.lowBody}</p>
@@ -755,23 +832,25 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
         <span>${COPY.name} <small>(${COPY.nameOpt})</small></span>
         <input type="text" name="name" maxlength="80" placeholder="${COPY.namePh}" autocomplete="name">
       </label>
+      <p class="error submit-error" role="alert" hidden></p>
       <button class="btn" type="submit">${COPY.send}</button>
     </form>
   </section>
 
-  <section class="float thanks" id="thanks" hidden>
+  <section class="float thanks" id="thanks" role="status" aria-live="polite" hidden>
     <div class="mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6.5 12 3.7 3.7 7.3-7.4" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <h2>${COPY.thanksTitle}</h2>
     <p>${COPY.thanksBody}</p>
+    ${instagramFollow(settings)}
   </section>
 </div>`;
 
   return documentPage({
     title,
     themeColor: "#0B2A5B",
-    css: landingCss(),
+    css: landingCss() + INSTAGRAM_FOLLOW_CSS,
     body,
     script: LANDING_SCRIPT,
     bodyClass: "land",
@@ -821,7 +900,7 @@ export function renderFeedbackPage({ settings, branch, rating, error }) {
   return documentPage({
     title,
     themeColor: "#000000",
-    css: reviewCss(),
+    css: reviewCss() + INSTAGRAM_FOLLOW_CSS,
     body,
     bodyClass: "review",
     colorScheme: "dark",
@@ -834,17 +913,18 @@ export function renderThanksPage(settings) {
   <article class="sheet">
   <section class="thanks">
     <div class="mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M9.2 16.2 4.8 11.8l1.4-1.4 3 3 8.6-8.6 1.4 1.4z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6.5 12 3.7 3.7 7.3-7.4" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <h2>${COPY.thanksTitle}</h2>
     <p>${COPY.thanksBody}</p>
+    ${instagramFollow(settings)}
   </section>
   </article>
 </main>`;
   return documentPage({
     title: COPY.thanksTitle,
     themeColor: "#000000",
-    css: reviewCss(),
+    css: reviewCss() + INSTAGRAM_FOLLOW_CSS,
     body,
     bodyClass: "review",
     colorScheme: "dark",
@@ -864,7 +944,7 @@ export function renderNoPlatformPage(settings) {
   return documentPage({
     title: COPY.title,
     themeColor: "#000000",
-    css: reviewCss(),
+    css: reviewCss() + INSTAGRAM_FOLLOW_CSS,
     body,
     bodyClass: "review",
     colorScheme: "dark",

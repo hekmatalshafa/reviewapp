@@ -1,0 +1,38 @@
+/* Shared glass action surfaces, matching the hero and rating cards. */
+:root{
+  --action-glass:linear-gradient(135deg,rgba(255,255,255,.42),rgba(240,249,255,.16));
+  --action-edge:rgba(255,255,255,.58);
+  --action-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -1px 0 rgba(255,255,255,.12),0 6px 24px rgba(11,42,91,.05);
+}
+body :is(.btn,.btn-lite,.ghost,.burger,.drawer-close,.drawer-link,.instagram-follow,.menu,.logout button,.login-card button,form.inline button,.plat-actions button){
+  background:var(--action-glass);
+  border:1px solid var(--action-edge);
+  border-radius:18px;
+  color:#183852;
+  box-shadow:var(--action-shadow);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+  transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+body :is(.btn,.btn-lite,.ghost,.burger,.drawer-close,.drawer-link,.instagram-follow,.menu,.logout button,.login-card button,form.inline button,.plat-actions button):not(:disabled):not(.is-off):hover{
+  background:linear-gradient(135deg,rgba(255,255,255,.72),rgba(240,249,255,.38));
+  border-color:rgba(255,255,255,.85);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 8px 26px rgba(11,42,91,.08);
+  filter:none;
+}
+body :is(.btn,.btn-lite,.ghost,.burger,.drawer-close,.drawer-link,.instagram-follow,.menu,.logout button,.login-card button,form.inline button,.plat-actions button):focus-visible{
+  outline:2px solid #38789A;
+  outline-offset:3px;
+}
+body :is(.btn,.btn-lite,.instagram-follow,button):disabled,body .drawer-link.is-off{opacity:.5;cursor:not-allowed}
+/* Maintain readable contrast on the dark customer and sidebar surfaces. */
+body.review :is(.btn,.instagram-follow){color:#F3F7FA}
+body.admin .logout button{color:var(--ink)}
+body .drawer-link .menu-icon{background:rgba(222,237,247,.45);border:1px solid rgba(255,255,255,.55);border-radius:12px}
+body .drawer-link.is-off{box-shadow:none}
+@media(prefers-reduced-motion:reduce){
+  body :is(.btn,.btn-lite,.ghost,.burger,.drawer-close,.drawer-link,.instagram-follow,.menu,.logout button,.login-card button,form.inline button,.plat-actions button){transition:none}
+}
+/* Destructive actions retain their warning cue within the shared surface. */
+body .plat-actions button.danger{color:#9F2D20;border-color:rgba(159,45,32,.2)}
