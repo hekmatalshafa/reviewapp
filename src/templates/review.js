@@ -1,7 +1,6 @@
 import {
   escapeHtml,
   safeImageSrc,
-  isHttpUrl,
 } from "../utils.js";
 import { documentPage, STAR_SVG } from "./shell.js";
 
@@ -67,81 +66,12 @@ button,input,textarea,select{font-family:inherit}
 main{
   width:min(430px,100%);
   margin:auto;
-  padding:calc(88px + env(safe-area-inset-top)) 22px max(28px, env(safe-area-inset-bottom));
+  padding:max(28px, env(safe-area-inset-top)) 22px max(28px, env(safe-area-inset-bottom));
   display:flex;
   flex-direction:column;
   align-items:center;
   text-align:center;
 }
-.island-wrap{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  z-index:50;
-  display:flex;
-  justify-content:center;
-  padding:max(12px, env(safe-area-inset-top)) 14px 0;
-  pointer-events:none;
-}
-.island{
-  pointer-events:auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:6px;
-  width:min(420px, calc(100vw - 24px));
-  background:var(--primary);
-  color:#fff;
-  border:0;
-  border-radius:999px;
-  padding:6px 7px;
-  box-shadow:0 8px 28px rgba(4,160,182,.38);
-}
-.island-item{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  min-width:0;
-  flex:1;
-  color:#fff;
-  text-decoration:none;
-  padding:3px 8px 3px 4px;
-  border-radius:999px;
-}
-.island-item:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.island-item[href]:hover{background:rgba(0,0,0,.14)}
-.island-item:not([href]){opacity:.72}
-.island-ico{
-  width:32px;
-  height:32px;
-  border-radius:10px;
-  border:1.5px solid rgba(255,255,255,.7);
-  background:rgba(0,0,0,.16);
-  display:grid;
-  place-items:center;
-  flex:none;
-  color:#fff;
-}
-.island-ico svg{width:16px;height:16px;display:block}
-.island-txt{
-  font-size:.78rem;
-  font-weight:700;
-  line-height:1.2;
-  white-space:nowrap;
-}
-.island-logo{
-  width:44px;
-  height:44px;
-  border-radius:14px;
-  overflow:hidden;
-  display:grid;
-  place-items:center;
-  background:#000;
-  border:1.5px solid rgba(255,255,255,.55);
-  flex:none;
-}
-.island-logo img{width:34px;height:34px;object-fit:contain;display:block}
 .brand{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
 .brand img{
   max-height:64px;
@@ -315,41 +245,11 @@ input:focus-visible,textarea:focus-visible{
   .star{width:50px;height:50px;padding:5px}
   .stars{gap:6px}
   h1{font-size:1.32rem}
-  .island-txt{font-size:.7rem}
-  .island-item{gap:5px;padding:2px 6px 2px 3px}
-  .island-ico{width:28px;height:28px;border-radius:8px}
-  .island-ico svg{width:14px;height:14px}
 }
 @media (prefers-reduced-motion:reduce){
   .star,.btn,input,textarea{transition:none}
 }
 `;
-}
-
-const GLOBE_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 3.2a8.8 8.8 0 1 0 0 17.6 8.8 8.8 0 0 0 0-17.6z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M3.6 12h16.8M12 3.2c2.4 2.4 3.6 5.4 3.6 8.8s-1.2 6.4-3.6 8.8c-2.4-2.4-3.6-5.4-3.6-8.8s1.2-6.4 3.6-8.8z"/></svg>`;
-
-const INSTAGRAM_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.4" y="3.4" width="17.2" height="17.2" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.15" cy="6.85" r="1.05" fill="currentColor"/></svg>`;
-
-function islandLink(href, label, svg) {
-  const inner = `<span class="island-ico">${svg}</span><span class="island-txt">${escapeHtml(label)}</span>`;
-  if (href) {
-    return `<a class="island-item" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${inner}</a>`;
-  }
-  return `<span class="island-item">${inner}</span>`;
-}
-
-function islandBar(settings) {
-  const web = isHttpUrl(settings.website_url) ? String(settings.website_url).trim() : "";
-  const ig = isHttpUrl(settings.instagram_url) ? String(settings.instagram_url).trim() : "";
-  return `<header class="island-wrap">
-    <nav class="island" aria-label="دسترسی سریع">
-      ${islandLink(web, "وبسایت", GLOBE_SVG)}
-      <a class="island-logo" href="/" aria-label="صفحه اصلی">
-        <img src="/logo.png" alt="لوگوی کلینیک" width="34" height="34">
-      </a>
-      ${islandLink(ig, "اینستاگرام", INSTAGRAM_SVG)}
-    </nav>
-  </header>`;
 }
 
 function brandBlock(settings) {
@@ -498,7 +398,6 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
     : COPY.title;
 
   const body = `
-${islandBar(settings)}
 <main>
   ${brandBlock(settings)}
   <h1 id="ask">${COPY.ask}</h1>
@@ -562,7 +461,6 @@ export function renderFeedbackPage({ settings, branch, rating, error }) {
     .join("");
 
   const body = `
-${islandBar(settings)}
 <main>
   ${brandBlock(settings)}
   <div class="stars is-locked" dir="ltr" aria-label="امتیاز ${rating} از ۵">${filled}</div>
@@ -603,7 +501,6 @@ ${islandBar(settings)}
 
 export function renderThanksPage(settings) {
   const body = `
-${islandBar(settings)}
 <main>
   ${brandBlock(settings)}
   <section class="thanks">
@@ -626,7 +523,6 @@ ${islandBar(settings)}
 
 export function renderNoPlatformPage(settings) {
   const body = `
-${islandBar(settings)}
 <main>
   ${brandBlock(settings)}
   <section class="thanks">
