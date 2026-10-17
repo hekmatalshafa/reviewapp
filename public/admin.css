@@ -1,13 +1,13 @@
 :root{
-  --bg:#F1EBE1;
-  --ink:#1B1814;
-  --muted:#6E675C;
-  --line:#E2D8CA;
-  --card:#FFFcf6;
-  --side:#122824;
-  --side-2:#1A3A34;
-  --gold:#C4A35A;
-  --ok:#1A5F52;
+  --bg:#DDEEF9;
+  --ink:#0B2A5B;
+  --muted:#526782;
+  --line:rgba(11,42,91,.12);
+  --card:rgba(255,255,255,.55);
+  --side:#C2E2F5;
+  --side-2:#9ACBE9;
+  --gold:#E9B650;
+  --ok:#0B6F91;
   --bad:#9F2D20;
   --font:"Vazirmatn","Tahoma",system-ui,sans-serif;
 }
@@ -19,7 +19,7 @@ a{color:inherit}
 .sidebar{
   width:248px;
   background:linear-gradient(180deg,var(--side),var(--side-2));
-  color:#F3EDE3;
+  color:#F1F8FE;
   display:flex;
   flex-direction:column;
   padding:22px 14px;
@@ -27,7 +27,7 @@ a{color:inherit}
 }
 .side-brand{display:flex;gap:10px;align-items:center;padding:6px 8px 22px}
 .side-brand img,.side-brand .mark{
-  width:40px;height:40px;border-radius:12px;object-fit:contain;background:#F3EDE3;color:var(--gold);display:grid;place-items:center;flex:none
+  width:40px;height:40px;border-radius:12px;object-fit:contain;background:#F1F8FE;color:var(--gold);display:grid;place-items:center;flex:none
 }
 .side-brand .mark svg,.login-mark svg{overflow:visible}
 .side-brand .mark svg path,.login-mark svg path{fill:currentColor;stroke:currentColor;stroke-linejoin:round}
@@ -38,7 +38,7 @@ a{color:inherit}
 .sidebar nav a{
   display:flex;align-items:center;gap:10px;
   text-decoration:none;padding:10px 12px;border-radius:12px;
-  color:#E9E1D4;opacity:.86;
+  color:#EAF5FF;opacity:.86;
 }
 .sidebar nav a svg{width:18px;height:18px;flex:none;opacity:.9}
 .sidebar nav a.is-active,.sidebar nav a:hover{background:rgba(255,255,255,.08);opacity:1}
@@ -46,7 +46,7 @@ a{color:inherit}
 .logout{margin-top:auto;padding-top:16px}
 .logout button{
   width:100%;background:transparent;border:1px solid rgba(243,237,227,.2);
-  color:#F3EDE3;border-radius:12px;padding:10px;cursor:pointer
+  color:#F1F8FE;border-radius:12px;padding:10px;cursor:pointer
 }
 .wrap{flex:1;min-width:0;display:flex;flex-direction:column}
 .top{
@@ -75,7 +75,7 @@ a{color:inherit}
 .bar-row{display:grid;grid-template-columns:90px 1fr 48px;gap:10px;align-items:center}
 .bar-label,.bar-n{font-size:.86rem;color:var(--muted)}
 .bar-n{text-align:left;font-variant-numeric:tabular-nums}
-.bar-track{height:8px;background:#EFE6D8;border-radius:99px;overflow:hidden}
+.bar-track{height:8px;background:#D8E8F3;border-radius:99px;overflow:hidden}
 .bar-fill{display:block;height:100%;background:var(--ok);border-radius:99px}
 label{display:block;margin-bottom:14px}
 label span{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:6px}
@@ -117,7 +117,7 @@ input[type=file]{width:100%;padding:10px 0}
 .plat-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .plat-id{display:flex;gap:12px;align-items:center;min-width:0}
 .plat-id img,.letter{
-  width:44px;height:44px;border-radius:12px;object-fit:contain;background:#F6F0E6;flex:none
+  width:44px;height:44px;border-radius:12px;object-fit:contain;background:#E8F3FA;flex:none
 }
 .letter{display:grid;place-items:center;font-weight:700;color:var(--ok)}
 .plat h3{font-size:1.02rem;line-height:1.6}
@@ -126,7 +126,7 @@ input[type=file]{width:100%;padding:10px 0}
 .badge{font-size:.75rem;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
 .badge.ok{background:rgba(26,95,82,.1);color:var(--ok);border-color:transparent}
 .badge.gold{background:rgba(196,163,90,.18);color:#7A5C1E;border-color:transparent}
-.badge.off{background:#F3EEE6}
+.badge.off{background:#E8EFF5}
 .plat-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .plat-actions .danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%, var(--line))}
 .fb{padding:16px 18px}
@@ -134,7 +134,7 @@ input[type=file]{width:100%;padding:10px 0}
 .fb time{color:var(--muted);font-size:.8rem}
 .fb p{line-height:1.85;white-space:pre-wrap}
 .fb footer{margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.82rem}
-.mini-stars{display:inline-flex;gap:2px;color:#D6CFC3}
+.mini-stars{display:inline-flex;gap:2px;color:#C4D4E2}
 .mini-stars span{width:16px;height:16px;display:block}
 .mini-stars svg{width:100%;height:100%;overflow:visible}
 .mini-stars svg path{fill:transparent;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
@@ -147,7 +147,7 @@ input[type=file]{width:100%;padding:10px 0}
 .flash.bad{background:#FBECEA;color:var(--bad);border-color:color-mix(in srgb,var(--bad) 25%, white)}
 .empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px;background:var(--card)}
 .help{color:var(--muted);line-height:1.8;font-size:.9rem;margin-bottom:10px}
-.url-copy{font-size:.95rem;background:#F6F0E6;border-radius:10px;padding:10px 12px;margin:8px 0 12px;overflow-wrap:anywhere}
+.url-copy{font-size:.95rem;background:#E8F3FA;border-radius:10px;padding:10px 12px;margin:8px 0 12px;overflow-wrap:anywhere}
 .backdrop{display:none}
 body.admin.login-page{display:grid;place-items:center;padding:24px}
 .login-main{width:min(400px,100%)}
@@ -155,7 +155,7 @@ body.admin.login-page{display:grid;place-items:center;padding:24px}
   background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 24px
 }
 .login-mark{
-  width:48px;height:48px;border-radius:14px;background:#122824;color:var(--gold);
+  width:48px;height:48px;border-radius:14px;background:#163C60;color:var(--gold);
   display:grid;place-items:center;margin-bottom:16px
 }
 .login-mark svg{width:26px;height:26px}
@@ -184,4 +184,55 @@ body.admin.login-page{display:grid;place-items:center;padding:24px}
 }
 @media (prefers-reduced-motion:reduce){
   .sidebar,.backdrop{transition:none}
+}
+
+/* Landing-aligned glass workspace. */
+body.admin{background:radial-gradient(ellipse at 10% 0%,rgba(255,255,255,.8),transparent 60%),linear-gradient(145deg,#DBEFFB,#A8CFE9);background-attachment:fixed}
+.card,.stat,.plat,.fb,.login-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.62),rgba(240,249,255,.32));
+  border:1px solid rgba(255,255,255,.58);border-radius:18px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 6px 24px rgba(11,42,91,.05);
+  backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+}
+.top{background:rgba(240,249,255,.5);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-color:rgba(255,255,255,.5)}
+.sidebar{border-inline-end:1px solid rgba(255,255,255,.25);box-shadow:0 8px 28px rgba(11,42,91,.08)}
+.sidebar nav a.is-active,.sidebar nav a:hover{background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(240,249,255,.07));border-radius:16px}
+input[type=text],input[type=url],input[type=password],input[type=tel],textarea,select{background:rgba(255,255,255,.65);border-color:rgba(11,42,91,.12);border-radius:14px}
+input:focus-visible,textarea:focus-visible,select:focus-visible{box-shadow:0 0 0 3px rgba(37,128,155,.12)}
+.badge.gold{background:rgba(233,182,80,.18);color:#795C1C}
+.login-mark{background:rgba(255,255,255,.5);color:#25809B;border:1px solid rgba(255,255,255,.6)}
+
+.login-mark{overflow:hidden}
+.login-mark img{display:block;width:100%;height:100%;object-fit:contain}
+
+/* Transparent mascot, without an avatar tile. */
+.side-brand img,.login-mark,.login-mark img{
+  background:transparent;border:0;border-radius:0;box-shadow:none;
+}
+.side-brand img{object-fit:contain}
+/* The same sky-blue, navy and frosted surfaces as the landing page. */
+.sidebar{background:linear-gradient(160deg,var(--side),var(--side-2));color:var(--ink)}
+.sidebar nav a{color:var(--ink);opacity:.85}
+.sidebar nav a.is-active,.sidebar nav a:hover{
+  color:var(--ink);opacity:1;
+  background:linear-gradient(135deg,rgba(255,255,255,.52),rgba(240,249,255,.22));
+}
+.sidebar nav a.is-active{border-inline-start-color:#0B6F91}
+body.admin .logout button{color:var(--ink)}
+.side-brand span{color:var(--muted)}
+body.admin{background:radial-gradient(ellipse at 10% 0%,rgba(255,255,255,.7),transparent 60%),linear-gradient(145deg,#D8EFFC,#8EC8F0)}
+.card,.stat,.plat,.fb,.login-card{background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(240,249,255,.16))}
+/* Text-only administration header and reliable mobile layout. */
+.side-brand{padding:8px 8px 24px}
+.side-brand strong{font-size:1rem;line-height:1.8}
+.side-brand span{margin-top:4px}
+.login-card h1{margin-bottom:12px}
+.content{overflow-wrap:anywhere}
+@media(max-width:860px){.sidebar{overflow-y:auto;overscroll-behavior:contain}}
+@media(max-width:520px){
+  .top{padding:12px;gap:8px}
+  .top h1{font-size:1rem}
+  .inline{flex-wrap:wrap;min-width:0}
+  .inline label{min-width:0;flex-basis:100%}
+  .form-actions{flex-wrap:wrap}
 }

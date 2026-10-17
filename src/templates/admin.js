@@ -3,8 +3,6 @@ import {
   safeImageSrc,
   toFa,
   formatJalali,
-  sanitizeColor,
-  DEFAULT_SETTINGS,
 } from "../utils.js";
 import { documentPage, STAR_SVG } from "./shell.js";
 
@@ -13,10 +11,13 @@ const ADMIN_SCRIPT = `
   var toggle=document.querySelector("[data-nav-toggle]");
   var sidebar=document.querySelector(".sidebar");
   var backdrop=document.querySelector(".backdrop");
-  function close(){document.body.classList.remove("nav-open");if(toggle)toggle.setAttribute("aria-expanded","false");}
-  function open(){document.body.classList.add("nav-open");if(toggle)toggle.setAttribute("aria-expanded","true");}
+  function close(){document.body.classList.remove("nav-open");document.body.style.overflow="";if(toggle)toggle.setAttribute("aria-expanded","false");}
+  function open(){document.body.classList.add("nav-open");document.body.style.overflow="hidden";if(toggle)toggle.setAttribute("aria-expanded","true");}
   if(toggle){toggle.addEventListener("click",function(){document.body.classList.contains("nav-open")?close():open();});}
   if(backdrop){backdrop.addEventListener("click",close);}
+  document.addEventListener("keydown",function(e){if(e.key==="Escape" && document.body.classList.contains("nav-open")){close();if(toggle)toggle.focus();}});
+  if(sidebar)sidebar.querySelectorAll("a").forEach(function(link){link.addEventListener("click",close);});
+  window.matchMedia("(max-width:860px)").addEventListener("change",close);
   document.querySelectorAll("[data-confirm]").forEach(function(el){
     el.addEventListener("submit",function(e){
       if(!confirm(el.getAttribute("data-confirm"))) e.preventDefault();
@@ -26,7 +27,9 @@ const ADMIN_SCRIPT = `
     input.addEventListener("change",function(){
       var target=document.getElementById(input.getAttribute("data-preview"));
       if(!target||!input.files||!input.files[0])return;
+      if(target.dataset.previewUrl)URL.revokeObjectURL(target.dataset.previewUrl);
       var url=URL.createObjectURL(input.files[0]);
+      target.dataset.previewUrl=url;
       target.innerHTML='<img src="'+url+'" alt="پیش‌نمایش">';
     });
   });
@@ -45,7 +48,6 @@ function navIcon(name) {
 
 function adminLayout({ title, active, settings, flash, content }) {
   const name = (settings.business_name || "").trim() || "پنل مدیریت";
-  const logo = safeImageSrc(settings.business_logo);
   const items = [
     { id: "dashboard", href: "/admin", label: "داشبورد", icon: "dash" },
     { id: "business", href: "/admin/business", label: "اطلاعات کسب‌وکار", icon: "biz" },
@@ -55,19 +57,18 @@ function adminLayout({ title, active, settings, flash, content }) {
 
   const body = `
 <div class="backdrop"></div>
-<aside class="sidebar">
+<aside class="sidebar" id="admin-navigation">
   <div class="side-brand">
-    ${logo ? `<img src="${escapeHtml(logo)}" alt="">` : `<span class="mark">${STAR_SVG}</span>`}
     <div>
       <strong>${escapeHtml(name)}</strong>
       <span>پنل مدیریت</span>
     </div>
   </div>
-  <nav>
+  <nav aria-label="بخش‌های مدیریت">
     ${items
       .map(
         (item) =>
-          `<a href="${item.href}" class="${item.id === active ? "is-active" : ""}">${navIcon(item.icon)}<span>${item.label}</span></a>`,
+          `<a href="${item.href}" class="${item.id === active ? "is-active" : ""}"${item.id === active ? ' aria-current="page"' : ""}>${navIcon(item.icon)}<span>${item.label}</span></a>`,
       )
       .join("")}
   </nav>
@@ -77,21 +78,21 @@ function adminLayout({ title, active, settings, flash, content }) {
 </aside>
 <div class="wrap">
   <header class="top">
-    <button class="menu" type="button" data-nav-toggle aria-expanded="false" aria-label="باز کردن منو">
+    <button class="menu" type="button" data-nav-toggle aria-controls="admin-navigation" aria-expanded="false" aria-label="باز کردن منو">
       <span></span><span></span><span></span>
     </button>
     <h1>${escapeHtml(title)}</h1>
     <a class="ghost" href="/review" target="_blank" rel="noopener">مشاهده صفحه نظر</a>
   </header>
-  <div class="content">
+  <main class="content" id="admin-content">
     ${flash ? `<div class="flash" role="status">${escapeHtml(flash)}</div>` : ""}
     ${content}
-  </div>
+  </main>
 </div>`;
 
   return documentPage({
     title: `${title} | پنل مدیریت`,
-    themeColor: sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color),
+    themeColor: "#8EC8F0",
     extraHead: `<link rel="stylesheet" href="/admin.css">`,
     css: "",
     body,
@@ -107,11 +108,9 @@ function miniStars(n) {
 }
 
 export function renderLogin({ error, settings }) {
-  const primary = sanitizeColor(settings?.primary_color, DEFAULT_SETTINGS.primary_color);
   const body = `
 <main class="login-main">
   <form class="login-card" method="post" action="/admin/login">
-    <div class="login-mark">${STAR_SVG}</div>
     <h1>ورود به پنل مدیریت</h1>
     <p>برای مدیریت پلتفرم‌های ثبت نظر و اطلاعات کسب‌وکار وارد شوید.</p>
     ${error ? `<p class="flash bad" role="alert">${escapeHtml(error)}</p>` : ""}
@@ -124,7 +123,7 @@ export function renderLogin({ error, settings }) {
 </main>`;
   return documentPage({
     title: "ورود به پنل مدیریت",
-    themeColor: primary,
+    themeColor: "#8EC8F0",
     extraHead: `<link rel="stylesheet" href="/admin.css">`,
     css: "",
     body,
@@ -185,7 +184,7 @@ export function renderBusiness({ settings, flash, error }) {
   const content = `
 <section class="card">
   <form method="post" action="/admin/business" enctype="multipart/form-data">
-    ${error ? `<p class="flash bad">${escapeHtml(error)}</p>` : ""}
+    ${error ? `<p class="flash bad" role="alert">${escapeHtml(error)}</p>` : ""}
     <label>
       <span>نام کسب‌وکار</span>
       <input type="text" name="business_name" maxlength="80" value="${escapeHtml(settings.business_name)}" placeholder="نام کسب‌وکار">
@@ -197,7 +196,7 @@ export function renderBusiness({ settings, flash, error }) {
     <div class="row-2">
       <label>
         <span>شماره تماس</span>
-        <input type="text" name="business_phone" maxlength="30" dir="ltr" value="${escapeHtml(settings.business_phone)}" placeholder="۰۲۱-۰۰۰۰۰۰۰۰">
+        <input type="tel" name="business_phone" autocomplete="tel" maxlength="30" dir="ltr" value="${escapeHtml(settings.business_phone)}" placeholder="۰۲۱-۰۰۰۰۰۰۰۰">
       </label>
       <label>
         <span>آدرس</span>
@@ -214,22 +213,12 @@ export function renderBusiness({ settings, flash, error }) {
         <input type="url" name="instagram_url" maxlength="300" dir="ltr" value="${escapeHtml(settings.instagram_url || "")}" placeholder="https://instagram.com/">
       </label>
     </div>
-    <p class="help">شماره تماس، وب‌سایت و اینستاگرام در منوی صفحه نظر نمایش داده می‌شوند.</p>
-    <div class="row-2">
-      <label>
-        <span>رنگ اصلی</span>
-        <input type="color" name="primary_color" value="${escapeHtml(settings.primary_color)}">
-      </label>
-      <label>
-        <span>رنگ ثانویه</span>
-        <input type="color" name="secondary_color" value="${escapeHtml(settings.secondary_color)}">
-      </label>
-    </div>
+    <p class="help">شماره تماس، وب‌سایت و اینستاگرام در سه کارت بالای صفحه نظر استفاده می‌شوند؛ لینک اینستاگرام در پیام ثبت موفق هم نمایش داده می‌شود.</p>
     <label>
-      <span>لوگو</span>
+      <span>لوگوی صفحه مشتری</span>
       <input type="file" name="business_logo" accept="image/png,image/jpeg,image/webp,image/gif" data-preview="logo-preview">
     </label>
-    ${logo ? `<input type="hidden" name="keep_logo" value="1">` : ""}
+    <p class="help">این لوگو فقط برای صفحه مشتری است؛ حداکثر حجم ۴۰۰ کیلوبایت.</p>
     <div class="preview" id="logo-preview">${logo ? `<img src="${escapeHtml(logo)}" alt="لوگو">` : "<span>لوگویی انتخاب نشده</span>"}</div>
     ${logo ? `<label class="check"><input type="checkbox" name="remove_logo" value="1"> حذف لوگو</label>` : ""}
     <button class="btn" type="submit">ذخیره</button>
@@ -338,7 +327,7 @@ export function renderPlatformForm({ settings, platform, flash, error, isNew }) 
   const content = `
 <section class="card">
   <form method="post" action="${escapeHtml(action)}" enctype="multipart/form-data">
-    ${error ? `<p class="flash bad">${escapeHtml(error)}</p>` : ""}
+    ${error ? `<p class="flash bad" role="alert">${escapeHtml(error)}</p>` : ""}
     <label>
       <span>نام پلتفرم</span>
       <input type="text" name="name" required maxlength="80" value="${escapeHtml(p.name)}" placeholder="مثلاً نشان">

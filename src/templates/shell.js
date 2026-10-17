@@ -33,6 +33,7 @@ export function documentPage({
 <link rel="preload" href="/fonts/Vazirmatn-Variable.woff2" as="font" type="font/woff2" crossorigin>
 <style>${fontFace()}${css}</style>
 ${extraHead}
+<link rel="stylesheet" href="/buttons.css">
 </head>
 <body class="${escapeHtml(bodyClass)}">
 ${body}
@@ -45,4 +46,6 @@ export function applyNonce(html, nonce) {
   return html.replaceAll("__NONCE__", nonce);
 }
 
-export const STAR_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" stroke="currentColor" stroke-width="2.35" stroke-linejoin="round" stroke-linecap="round" d="M12 3.15 15.03 8.03 20.61 9.4 16.9 13.79 17.32 19.52 12 17.35 6.68 19.52 7.1 13.79 3.39 9.4 8.97 8.03Z"/></svg>`;
+export const STAR_PATH = "M10.65 3.7Q12 .85 13.35 3.7L15.15 7.4Q15.45 8.05 16.2 8.15L20.3 8.75Q23.4 9.2 21.15 11.4L18.2 14.25Q17.65 14.8 17.8 15.55L18.5 19.6Q19.05 22.7 16.3 21.25L12.75 19.35Q12 18.95 11.25 19.35L7.7 21.25Q4.95 22.7 5.5 19.6L6.2 15.55Q6.35 14.8 5.8 14.25L2.85 11.4Q.6 9.2 3.7 8.75L7.8 8.15Q8.55 8.05 8.85 7.4Z";
+
+export const STAR_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" d="${STAR_PATH}"/></svg>`;
