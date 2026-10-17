@@ -224,6 +224,7 @@ a.contact-card:focus-visible{outline:2px solid var(--navy);outline-offset:3px}
   backdrop-filter:blur(22px) saturate(140%);
   -webkit-backdrop-filter:blur(22px) saturate(140%);
 }
+.clinic-name{white-space:nowrap;font-size:clamp(12px,3.8vw,17px);font-weight:700;line-height:1.8}
 .brand-admin-link{color:inherit;text-decoration:none}
 .brand-admin-link:focus-visible{outline:2px solid var(--navy);outline-offset:3px;border-radius:4px}
 .brand-text .kicker,.brand-text .name{white-space:normal;overflow-wrap:anywhere}
@@ -793,8 +794,7 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
     <div class="brand">
       ${headerLogo(settings)}
       <div class="brand-text">
-        <div class="kicker">کلینیک دندانپزشکی تخصصی</div>
-        <div class="name"><a class="brand-admin-link" href="/admin">حکمت</a></div>
+        <div class="clinic-name">کلینیک تخصصی دندانپزشکی <a class="brand-admin-link" href="/admin">حکمت</a></div>
       </div>
     </div>
   </header>
