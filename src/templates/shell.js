@@ -45,4 +45,4 @@ export function applyNonce(html, nonce) {
   return html.replaceAll("__NONCE__", nonce);
 }
 
-export const STAR_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round" d="M12 3.05 14.97 8.11 20.7 9.37 16.8 13.76 17.38 19.6 12 17.25 6.62 19.6 7.2 13.76 3.3 9.37 9.03 8.11Z"/></svg>`;
+export const STAR_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" stroke="currentColor" stroke-width="2.35" stroke-linejoin="round" stroke-linecap="round" d="M12 3.15 15.03 8.03 20.61 9.4 16.9 13.79 17.32 19.52 12 17.35 6.68 19.52 7.1 13.79 3.39 9.4 8.97 8.03Z"/></svg>`;

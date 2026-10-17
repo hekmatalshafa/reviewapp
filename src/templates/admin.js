@@ -214,6 +214,7 @@ export function renderBusiness({ settings, flash, error }) {
         <input type="url" name="instagram_url" maxlength="300" dir="ltr" value="${escapeHtml(settings.instagram_url || "")}" placeholder="https://instagram.com/">
       </label>
     </div>
+    <p class="help">شماره تماس، وب‌سایت و اینستاگرام در منوی صفحه نظر نمایش داده می‌شوند.</p>
     <div class="row-2">
       <label>
         <span>رنگ اصلی</span>
