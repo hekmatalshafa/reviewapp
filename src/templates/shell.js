@@ -12,6 +12,7 @@ export function documentPage({
   script,
   extraHead = "",
   bodyClass = "",
+  colorScheme = "light",
 }) {
   const theme = sanitizeColor(themeColor, DEFAULT_SETTINGS.primary_color);
   const scriptTag = script
@@ -23,7 +24,7 @@ export function documentPage({
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="${escapeHtml(theme)}">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="${escapeHtml(colorScheme)}">
 <meta name="robots" content="noindex, nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>${escapeHtml(title)}</title>
@@ -43,4 +44,4 @@ export function applyNonce(html, nonce) {
   return html.replaceAll("__NONCE__", nonce);
 }
 
-export const STAR_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2.15l2.62 5.62 6.18.84-4.5 4.28 1.12 6.11L12 16.98l-5.42 2.02 1.12-6.11-4.5-4.28 6.18-.84L12 2.15z"/></svg>`;
+export const STAR_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round" d="M12 3.05 14.97 8.11 20.7 9.37 16.8 13.76 17.38 19.6 12 17.25 6.62 19.6 7.2 13.76 3.3 9.37 9.03 8.11Z"/></svg>`;

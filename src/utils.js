@@ -20,8 +20,8 @@ export const DEFAULT_SETTINGS = {
   business_description: "",
   business_phone: "",
   business_address: "",
-  primary_color: "#1A5F52",
-  secondary_color: "#C4A35A",
+  primary_color: "#04A0B6",
+  secondary_color: "#F4C64A",
 };
 
 export function escapeHtml(value) {

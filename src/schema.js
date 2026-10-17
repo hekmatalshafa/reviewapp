@@ -55,8 +55,8 @@ INSERT OR IGNORE INTO settings (key, value) VALUES
   ('business_description', ''),
   ('business_phone', ''),
   ('business_address', ''),
-  ('primary_color', '#1A5F52'),
-  ('secondary_color', '#C4A35A');
+  ('primary_color', '#04A0B6'),
+  ('secondary_color', '#F4C64A');
 
 INSERT OR IGNORE INTO platforms (
   id, name, review_url, deep_link, web_fallback, icon, enabled, is_primary, sort_order

@@ -579,7 +579,7 @@ app.get("/admin/feedback", async (c) => {
 
 app.notFound(async (c) => {
   const body = `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>صفحه پیدا نشد</title>
-<style>@font-face{font-family:Vazirmatn;src:url("/fonts/Vazirmatn-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}body{font-family:Vazirmatn,Tahoma,sans-serif;background:#F3EEE4;color:#1C1915;display:grid;place-items:center;min-height:100dvh;margin:0;text-align:center;line-height:1.8}a{color:#1A5F52}</style>
+<style>@font-face{font-family:Vazirmatn;src:url("/fonts/Vazirmatn-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}body{font-family:Vazirmatn,Tahoma,sans-serif;background:#000;color:#fff;display:grid;place-items:center;min-height:100dvh;margin:0;text-align:center;line-height:1.8}a{color:#04A0B6}</style>
 </head><body><main><h1>این صفحه پیدا نشد.</h1><p><a href="/review">بازگشت به ثبت نظر</a></p></main></body></html>`;
   return c.html(body, 404);
 });
@@ -587,7 +587,7 @@ app.notFound(async (c) => {
 app.onError((err, c) => {
   console.error(err);
   const body = `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>خطا</title>
-<style>@font-face{font-family:Vazirmatn;src:url("/fonts/Vazirmatn-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}body{font-family:Vazirmatn,Tahoma,sans-serif;background:#F3EEE4;color:#1C1915;display:grid;place-items:center;min-height:100dvh;margin:0;text-align:center;line-height:1.8}</style>
+<style>@font-face{font-family:Vazirmatn;src:url("/fonts/Vazirmatn-Variable.woff2") format("woff2");font-weight:100 900;font-display:swap}body{font-family:Vazirmatn,Tahoma,sans-serif;background:#000;color:#fff;display:grid;place-items:center;min-height:100dvh;margin:0;text-align:center;line-height:1.8}</style>
 </head><body><main><h1>مشکلی پیش آمد.</h1><p>کمی بعد دوباره تلاش کنید.</p></main></body></html>`;
   return c.html(body, 500);
 });

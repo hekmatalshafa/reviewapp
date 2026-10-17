@@ -27,8 +27,10 @@ a{color:inherit}
 }
 .side-brand{display:flex;gap:10px;align-items:center;padding:6px 8px 22px}
 .side-brand img,.side-brand .mark{
-  width:40px;height:40px;border-radius:10px;object-fit:contain;background:#F3EDE3;color:var(--gold);display:grid;place-items:center;flex:none
+  width:40px;height:40px;border-radius:12px;object-fit:contain;background:#F3EDE3;color:var(--gold);display:grid;place-items:center;flex:none
 }
+.side-brand .mark svg,.login-mark svg{overflow:visible}
+.side-brand .mark svg path,.login-mark svg path{fill:currentColor;stroke:currentColor;stroke-linejoin:round}
 .side-brand .mark svg{width:22px;height:22px}
 .side-brand strong{display:block;font-size:.92rem;line-height:1.6}
 .side-brand span{display:block;font-size:.75rem;opacity:.7}
@@ -134,8 +136,10 @@ input[type=file]{width:100%;padding:10px 0}
 .fb footer{margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.82rem}
 .mini-stars{display:inline-flex;gap:2px;color:#D6CFC3}
 .mini-stars span{width:16px;height:16px;display:block}
-.mini-stars svg{width:100%;height:100%}
+.mini-stars svg{width:100%;height:100%;overflow:visible}
+.mini-stars svg path{fill:transparent;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
 .mini-stars .on{color:var(--gold)}
+.mini-stars .on svg path{fill:currentColor}
 .flash{
   background:#EAF4F0;color:var(--ok);border:1px solid color-mix(in srgb,var(--ok) 25%, white);
   padding:12px 14px;border-radius:12px
