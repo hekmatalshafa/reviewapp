@@ -114,7 +114,7 @@ function headerLogo(settings) {
   if (src && src !== "/logo.png") {
     return `<img class="logo" src="${escapeHtml(src)}" alt="" width="44" height="44">`;
   }
-  return `<span class="logo-ph" aria-hidden="true"></span>`;
+  return "";
 }
 
 function contactCards(settings) {
@@ -205,7 +205,7 @@ a.contact-card:focus-visible{outline:2px solid var(--navy);outline-offset:3px}
   min-width:0;
   max-width:100%;
 }
-.logo,.logo-ph{
+.logo{
   width:44px;
   height:44px;
   border-radius:12px;
@@ -214,7 +214,6 @@ a.contact-card:focus-visible{outline:2px solid var(--navy);outline-offset:3px}
   background:#E7F3FC;
   border:1px solid rgba(11,42,91,.12);
 }
-.logo-ph{box-shadow:inset 0 0 0 1px rgba(11,42,91,.04)}
 .brand-text{
   min-width:0;text-align:center;
   padding:10px 12px;
