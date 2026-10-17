@@ -793,8 +793,8 @@ export function renderReviewPage({ settings, branch, redirectUrl }) {
     <div class="brand">
       ${headerLogo(settings)}
       <div class="brand-text">
-        <div class="kicker">کلینیک شبانه روزی تخصصی</div>
-        <div class="name">دندانپزشکی <a class="brand-admin-link" href="/admin">حکمت‌الشفاء</a></div>
+        <div class="kicker">کلینیک دندانپزشکی تخصصی</div>
+        <div class="name"><a class="brand-admin-link" href="/admin">حکمت</a></div>
       </div>
     </div>
   </header>
