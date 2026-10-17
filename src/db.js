@@ -41,6 +41,7 @@ export async function getSettings(db) {
   } catch {
     /* unmigrated */
   }
+  if (!String(settings.business_phone || "").trim()) settings.business_phone = DEFAULT_SETTINGS.business_phone;
   if (!settings.business_logo) settings.business_logo = DEFAULT_SETTINGS.business_logo;
   settings.primary_color = sanitizeColor(settings.primary_color, DEFAULT_SETTINGS.primary_color);
   settings.secondary_color = sanitizeColor(
