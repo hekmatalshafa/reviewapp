@@ -47,7 +47,6 @@ function navIcon(name) {
 }
 
 function adminLayout({ title, active, settings, flash, content }) {
-  const name = (settings.business_name || "").trim() || "پنل مدیریت";
   const items = [
     { id: "dashboard", href: "/admin", label: "داشبورد", icon: "dash" },
     { id: "business", href: "/admin/business", label: "اطلاعات کسب‌وکار", icon: "biz" },
@@ -60,8 +59,7 @@ function adminLayout({ title, active, settings, flash, content }) {
 <aside class="sidebar" id="admin-navigation">
   <div class="side-brand">
     <div>
-      <strong>${escapeHtml(name)}</strong>
-      <span>پنل مدیریت</span>
+      <strong class="admin-title">پنل مدیریت</strong>
     </div>
   </div>
   <nav aria-label="بخش‌های مدیریت">
@@ -160,7 +158,14 @@ export function renderDashboard({ settings, stats, origin = "", flash }) {
     .join("")}
 </section>
 <section class="card">
-  <h2>توزیع امتیازها</h2>
+  <div class="toolbar">
+    <h2>توزیع امتیازها</h2>
+    <form method="post" action="/admin/stats/reset" data-confirm="آمار بازدید، امتیازها و انتقال‌ها صفر شود؟ متن بازخوردهای مشتریان حفظ می‌شود.">
+      <input type="hidden" name="confirm" value="reset">
+      <button class="btn-lite" type="submit">ریست آمار</button>
+    </form>
+  </div>
+  <p class="help">ریست آمار، بازخوردهای ذخیره‌شده یا تنظیمات را حذف نمی‌کند.</p>
   <div class="bars">${dist.join("")}</div>
 </section>
 <section class="card">
@@ -180,10 +185,9 @@ export function renderDashboard({ settings, stats, origin = "", flash }) {
 }
 
 export function renderBusiness({ settings, flash, error }) {
-  const logo = safeImageSrc(settings.business_logo);
   const content = `
 <section class="card">
-  <form method="post" action="/admin/business" enctype="multipart/form-data">
+  <form method="post" action="/admin/business" >
     ${error ? `<p class="flash bad" role="alert">${escapeHtml(error)}</p>` : ""}
     <label>
       <span>نام کسب‌وکار</span>
@@ -214,13 +218,6 @@ export function renderBusiness({ settings, flash, error }) {
       </label>
     </div>
     <p class="help">شماره تماس، وب‌سایت و اینستاگرام در سه کارت بالای صفحه نظر استفاده می‌شوند؛ لینک اینستاگرام در پیام ثبت موفق هم نمایش داده می‌شود.</p>
-    <label>
-      <span>لوگوی صفحه مشتری</span>
-      <input type="file" name="business_logo" accept="image/png,image/jpeg,image/webp,image/gif" data-preview="logo-preview">
-    </label>
-    <p class="help">این لوگو فقط برای صفحه مشتری است؛ حداکثر حجم ۴۰۰ کیلوبایت.</p>
-    <div class="preview" id="logo-preview">${logo ? `<img src="${escapeHtml(logo)}" alt="لوگو">` : "<span>لوگویی انتخاب نشده</span>"}</div>
-    ${logo ? `<label class="check"><input type="checkbox" name="remove_logo" value="1"> حذف لوگو</label>` : ""}
     <button class="btn" type="submit">ذخیره</button>
   </form>
 </section>`;
@@ -326,7 +323,7 @@ export function renderPlatformForm({ settings, platform, flash, error, isNew }) 
   const action = isNew ? "/admin/platforms/new" : `/admin/platforms/${encodeURIComponent(p.id)}`;
   const content = `
 <section class="card">
-  <form method="post" action="${escapeHtml(action)}" enctype="multipart/form-data">
+  <form method="post" action="${escapeHtml(action)}" >
     ${error ? `<p class="flash bad" role="alert">${escapeHtml(error)}</p>` : ""}
     <label>
       <span>نام پلتفرم</span>

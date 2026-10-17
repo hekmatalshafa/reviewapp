@@ -367,6 +367,15 @@ app.get("/admin", async (c) => {
   return html(c, renderDashboard({ settings, stats, origin, flash: popFlash(c) }));
 });
 
+app.post("/admin/stats/reset", async (c) => {
+  if (!isSameOrigin(c)) return c.text("درخواست نامعتبر است.", 403);
+  const body = await c.req.parseBody();
+  if (body.confirm !== "reset") return c.text("تأیید ریست آمار لازم است.", 400);
+  await c.env.DB.prepare("DELETE FROM events").run();
+  setFlash(c, "آمار صفر شد. بازخوردهای مشتریان و تنظیمات حفظ شدند.");
+  return c.redirect("/admin", 303);
+});
+
 app.get("/admin/business", async (c) => {
   const settings = await getSettings(c.env.DB);
   return html(c, renderBusiness({ settings, flash: popFlash(c) }));
@@ -386,13 +395,6 @@ app.post("/admin/business", async (c) => {
     }), 400);
   }
   try {
-    let logo = settings.business_logo || "";
-    if (body.remove_logo) logo = "";
-    if (body.business_logo) {
-      const uploaded = await fileToDataUrl(body.business_logo);
-      if (uploaded) logo = uploaded;
-    }
-
     await setSetting(c.env.DB, "business_name", clampText(body.business_name, 80));
     await setSetting(c.env.DB, "business_description", clampText(body.business_description, 400));
     await setSetting(c.env.DB, "business_phone", clampText(body.business_phone, 30));
@@ -405,7 +407,6 @@ app.post("/admin/business", async (c) => {
       "instagram_url",
       !instagram || isHttpUrl(instagram) ? instagram : settings.instagram_url || "",
     );
-    await setSetting(c.env.DB, "business_logo", logo);
     setFlash(c, "اطلاعات کسب‌وکار ذخیره شد.");
     return c.redirect("/admin/business", 303);
   } catch (err) {

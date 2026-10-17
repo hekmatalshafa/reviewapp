@@ -236,3 +236,12 @@ body.admin{background:radial-gradient(ellipse at 10% 0%,rgba(255,255,255,.7),tra
   .inline label{min-width:0;flex-basis:100%}
   .form-actions{flex-wrap:wrap}
 }
+
+/* Clearer glass: less blue pigment on the workspace surfaces. */
+.card,.stat,.plat,.fb,.login-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.35),rgba(255,255,255,.1));
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+}
+body.admin{background:radial-gradient(ellipse at 10% 0%,rgba(255,255,255,.8),transparent 65%),linear-gradient(145deg,#EAF4FA,#C2DEEE)}
+.side-brand .admin-title{font-size:1.35rem;font-weight:800;line-height:1.8}
+.toolbar h2{margin-bottom:0}
