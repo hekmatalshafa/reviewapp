@@ -206,6 +206,16 @@ export function renderBusiness({ settings, flash, error }) {
     </div>
     <div class="row-2">
       <label>
+        <span>وب‌سایت</span>
+        <input type="url" name="website_url" maxlength="300" dir="ltr" value="${escapeHtml(settings.website_url || "")}" placeholder="https://">
+      </label>
+      <label>
+        <span>اینستاگرام</span>
+        <input type="url" name="instagram_url" maxlength="300" dir="ltr" value="${escapeHtml(settings.instagram_url || "")}" placeholder="https://instagram.com/">
+      </label>
+    </div>
+    <div class="row-2">
+      <label>
         <span>رنگ اصلی</span>
         <input type="color" name="primary_color" value="${escapeHtml(settings.primary_color)}">
       </label>

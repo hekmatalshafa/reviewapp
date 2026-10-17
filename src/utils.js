@@ -20,6 +20,8 @@ export const DEFAULT_SETTINGS = {
   business_description: "",
   business_phone: "",
   business_address: "",
+  website_url: "",
+  instagram_url: "",
   primary_color: "#04A0B6",
   secondary_color: "#F4C64A",
 };
